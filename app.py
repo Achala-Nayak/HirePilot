@@ -1,7 +1,3 @@
-# app.py
-# An all-in-one Streamlit application for HirePilot.
-# This version fixes the job link redirection issue using a more robust method.
-
 import streamlit as st
 import os
 import httpx
@@ -17,14 +13,12 @@ load_dotenv()
 SERPAPI_KEY = os.getenv("SERPAPI_KEY")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
-
 st.set_page_config(
     page_title="HirePilot",
     page_icon="✈️",
     layout="wide",
     initial_sidebar_state="auto",
 )
-
 
 def is_valid_url(url):
     """Check if a URL is valid and accessible"""
@@ -41,7 +35,6 @@ def is_valid_url(url):
 def extract_job_url(job_data):
     """Extract the best available job URL from job data with multiple fallback options"""
     
-    # Priority order for URL extraction
     url_fields = [
         'apply_link',
         'redirect_link', 
@@ -62,12 +55,9 @@ def extract_job_url(job_data):
             url = job_data.get(field)
             if is_valid_url(url):
                 return url
-    
-    # If no direct apply link, try to construct a search URL
     title = job_data.get('title', '')
     company = job_data.get('company_name', '')
     if title and company:
-        # Create a Google search URL as fallback
         search_query = f"{title} {company} job application"
         return f"https://www.google.com/search?q={search_query.replace(' ', '+')}"
     
@@ -111,8 +101,8 @@ async def find_jobs(job_title: str, location: str, experience: str, job_count: i
                         "location": job.get("location", "Not specified"),
                         "description": job.get("description"),
                         "job_url": job_url,
-                        "job_id": job.get("job_id"),  # Keep job_id for debugging
-                        "raw_data": job  # Keep raw data for debugging (remove in production)
+                        "job_id": job.get("job_id"),  
+                        "raw_data": job  
                     })
             return jobs_list
         except httpx.HTTPStatusError as e:
@@ -207,12 +197,10 @@ def extract_text_from_pdf(file):
 st.title("✈️ HirePilot")
 st.markdown("Your AI-powered co-pilot for job hunting. Find jobs and tailor your resume instantly.")
 
-
 if 'jobs' not in st.session_state:
     st.session_state.jobs = []
 if 'resume_text' not in st.session_state:
     st.session_state.resume_text = ""
-
 
 with st.sidebar:
     st.header("1. Your Details")
@@ -232,8 +220,6 @@ with st.sidebar:
                 st.text_area("", st.session_state.resume_text, height=200, disabled=True)
 
     find_jobs_button = st.button("Find Jobs", type="primary", use_container_width=True)
-
-
 
 if find_jobs_button:
     if not all([job_title, location, experience, st.session_state.resume_text]):
@@ -259,7 +245,6 @@ if st.session_state.jobs:
                 job_url = job.get('job_url')
                 
                 if job_url:
-                    # Use HTML with target="_blank" to ensure it opens in a new tab
                     st.markdown(
                         f'<a href="{job_url}" target="_blank" style="text-decoration: none;">'
                         f'<div style="background-color: #0066cc; color: white; padding: 8px 16px; '
@@ -267,7 +252,6 @@ if st.session_state.jobs:
                         f'Apply Here</div></a>',
                         unsafe_allow_html=True
                     )
-                    # Debug info (remove in production)
                     with st.expander("🔍 Debug URL Info", expanded=False):
                         st.text(f"URL: {job_url}")
                         st.text(f"Valid: {is_valid_url(job_url)}")
@@ -291,9 +275,7 @@ if st.session_state.jobs:
                             
                             if tailored_resume:
                                 st.session_state[f'tailored_{i}'] = tailored_resume
-                                st.rerun()  # Refresh to show the results immediately
-
-                # Show tailored resume if it exists
+                                st.rerun()  
                 if st.session_state.get(f'tailored_{i}'):
                     st.divider()
                     st.success("🎯 Resume tailored successfully! Optimized for ATS and keyword matching.")
@@ -313,8 +295,6 @@ if st.session_state.jobs:
                                 ), 
                                 unsafe_allow_html=True
                             )
-                    
-                    # Display comparison
                     st.markdown("### 📊 Resume Comparison")
                     res_col1, res_col2 = st.columns(2)
                     

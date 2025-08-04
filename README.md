@@ -5,3 +5,6 @@ This project is being initialized with:
 - **Frontend:** Next.js (React, TypeScript, Tailwind CSS)
 
 The backend will be scaffolded first according to the planned structure.
+
+browserbase: stage hand
+chrome extension 
