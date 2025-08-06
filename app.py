@@ -7,6 +7,15 @@ from io import BytesIO
 import asyncio
 import re
 from urllib.parse import urlparse
+import google.generativeai as genai
+import io
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, PageBreak, Table, TableStyle
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.enums import TA_LEFT, TA_CENTER
+from reportlab.lib.colors import black, darkblue
+from reportlab.lib.units import inch
+from datetime import datetime
 
 load_dotenv()
 
@@ -20,6 +29,90 @@ st.set_page_config(
     initial_sidebar_state="auto",
 )
 
+@st.cache_resource
+def configure_gemini(api_key):
+    """Configure Gemini API and cache the model."""
+    try:
+        genai.configure(api_key=api_key)
+        model = genai.GenerativeModel('gemini-2.5-flash')
+        return model
+    except Exception as e:
+        st.error(f"Error configuring Gemini: {str(e)}")
+        return None
+
+@st.cache_resource
+def get_resume_styles():
+    """
+    Initializes and returns a reportlab stylesheet with custom styles.
+    """
+    styles = getSampleStyleSheet()
+
+    custom_styles = {
+        'ResumeTitle': ParagraphStyle(
+            name='ResumeTitle',
+            fontName='Helvetica-Bold',
+            fontSize=22,
+            leading=26,
+            alignment=TA_CENTER,
+            spaceAfter=6,
+            textColor=darkblue
+        ),
+        'ContactInfo': ParagraphStyle(
+            name='ContactInfo',
+            fontName='Helvetica',
+            fontSize=10,
+            leading=12,
+            alignment=TA_CENTER,
+            spaceAfter=18
+        ),
+        'SectionHeading': ParagraphStyle(
+            name='SectionHeading',
+            fontName='Helvetica-Bold',
+            fontSize=12,
+            leading=14,
+            alignment=TA_LEFT,
+            spaceBefore=12,
+            spaceAfter=6,
+            textColor=darkblue,
+            borderWidth=1,
+            borderColor=darkblue,
+            borderPadding=2
+        ),
+        'Content': ParagraphStyle(
+            name='Content',
+            fontName='Helvetica',
+            fontSize=10,
+            leading=12,
+            alignment=TA_LEFT,
+            spaceAfter=4,
+            leftIndent=0
+        ),
+        'SubHeading': ParagraphStyle(
+            name='SubHeading',
+            fontName='Helvetica-Bold',
+            fontSize=10,
+            leading=12,
+            alignment=TA_LEFT,
+            spaceAfter=2,
+            spaceBefore=4
+        ),
+        'BulletPoint': ParagraphStyle(
+            name='BulletPoint',
+            fontName='Helvetica',
+            fontSize=10,
+            leading=12,
+            alignment=TA_LEFT,
+            leftIndent=15,
+            bulletIndent=5,
+            spaceAfter=2
+        )
+    }
+
+    for style_name, style_obj in custom_styles.items():
+        if style_name not in styles:
+            styles.add(style_obj)
+    return styles
+
 def is_valid_url(url):
     """Check if a URL is valid and accessible"""
     if not url:
@@ -30,7 +123,6 @@ def is_valid_url(url):
         return bool(parsed.netloc) and bool(parsed.scheme) and parsed.scheme in ['http', 'https']
     except Exception:
         return False
-
 
 def extract_job_url(job_data):
     """Extract the best available job URL from job data with multiple fallback options"""
@@ -45,7 +137,7 @@ def extract_job_url(job_data):
     
     for field in url_fields:
         if field == 'related_links' and job_data.get('related_links'):
-            # Handle related_links which is typically a list
+            
             for link_obj in job_data['related_links']:
                 if isinstance(link_obj, dict) and 'link' in link_obj:
                     url = link_obj['link']
@@ -62,7 +154,6 @@ def extract_job_url(job_data):
         return f"https://www.google.com/search?q={search_query.replace(' ', '+')}"
     
     return None
-
 
 async def find_jobs(job_title: str, location: str, experience: str, job_count: int):
     """
@@ -111,7 +202,6 @@ async def find_jobs(job_title: str, location: str, experience: str, job_count: i
         except Exception as e:
             st.error(f"An unexpected error occurred: {e}")
             return []
-
 
 async def tailor_resume_with_llm(resume_text: str, job_description: str):
     """Uses the Google Gemini API to tailor a resume while maintaining original structure."""
@@ -172,14 +262,360 @@ async def tailor_resume_with_llm(resume_text: str, job_description: str):
             st.error(f"An unexpected error occurred during resume tailoring: {e}")
             return None
 
+def parse_resume_with_gemini(model, resume_text):
+    """
+    Enhanced parsing with better prompt structure
+    """
+    prompt = f"""
+    Please parse the following resume text and extract information into these sections.
+    For each section, provide clean, structured output with proper formatting.
+    
+    IMPORTANT: Extract ALL information available, including:
+    - All contact details (email, phone, LinkedIn, GitHub, portfolio links, address)
+    - All education details (degree, university, GPA, graduation date, relevant coursework)
+    - All technical skills (programming languages, frameworks, databases, tools)
+    - All work experience with dates, company names, and detailed responsibilities
+    - All projects with descriptions and technologies used
+    - All certifications, awards, publications, and extra activities
 
-def create_download_link(text_content, filename, link_text):
-    """Create a download link for text content"""
-    import base64
-    b64 = base64.b64encode(text_content.encode()).decode()
-    href = f'<a href="data:text/plain;base64,{b64}" download="{filename}" style="text-decoration: none; color: white; background-color: #00cc44; padding: 8px 16px; border-radius: 4px; font-weight: bold;">{link_text}</a>'
-    return href
+    Format your response EXACTLY as follows:
 
+    === PERSONAL_INFO ===
+    [Full name on first line]
+    [Email address]
+    [Phone number]
+    [Address if provided]
+    [LinkedIn URL if provided]
+    [GitHub URL if provided]
+    [Portfolio/Website URL if provided]
+    [Any other contact information]
+
+    === EDUCATION ===
+    [Degree] | [University/Institution] | [Graduation Date] | [GPA if provided]
+    [Any additional education entries]
+    [Relevant coursework if mentioned]
+
+    === TECHNICAL_SKILLS ===
+    Programming Languages: [list]
+    Frameworks/Libraries: [list]
+    Databases: [list]
+    Tools/Technologies: [list]
+    [Any other skill categories]
+
+    === EXPERIENCE ===
+    [Job Title] | [Company Name] | [Start Date - End Date]
+    - [Responsibility/Achievement 1]
+    - [Responsibility/Achievement 2]
+    - [Continue for all responsibilities]
+
+    [Next job entry following same format]
+
+    === PROJECTS ===
+    [Project Name] | [Technologies Used] | [Date if provided]
+    - [Project description]
+    - [Key features or achievements]
+    - [Technical details]
+
+    [Next project following same format]
+
+    === CERTIFICATIONS_AWARDS ===
+    [List all certifications, awards, publications, volunteer work, etc.]
+
+    Resume text to parse:
+    {resume_text}
+    """
+
+    try:
+        response = model.generate_content(prompt)
+        return response.text
+    except Exception as e:
+        st.error(f"Error processing with Gemini: {str(e)}")
+        return None
+
+def parse_gemini_output_to_dict(gemini_output):
+    """
+    Enhanced parsing of Gemini output with better section detection
+    """
+    parsed_data = {
+        'PERSONAL_INFO': '',
+        'EDUCATION': '',
+        'TECHNICAL_SKILLS': '',
+        'EXPERIENCE': '',
+        'PROJECTS': '',
+        'CERTIFICATIONS_AWARDS': ''
+    }
+
+
+    sections = re.split(r'=== ([A-Z_]+) ===', gemini_output)
+    
+    current_section = None
+    for i, section in enumerate(sections):
+        if section.strip() in parsed_data.keys():
+            current_section = section.strip()
+        elif current_section and i < len(sections):
+            parsed_data[current_section] = section.strip()
+
+
+    if not any(parsed_data.values()):
+        lines = gemini_output.split('\n')
+        current_section = None
+        content_lines = []
+        
+        for line in lines:
+            line = line.strip()
+            if any(section in line.upper() for section in parsed_data.keys()):
+                if current_section and content_lines:
+                    parsed_data[current_section] = '\n'.join(content_lines)
+                    content_lines = []
+                for section in parsed_data.keys():
+                    if section in line.upper():
+                        current_section = section
+                        break
+            elif current_section and line:
+                content_lines.append(line)
+        
+        if current_section and content_lines:
+            parsed_data[current_section] = '\n'.join(content_lines)
+
+    return parsed_data
+
+def is_placeholder_text(text):
+    """Check if text contains placeholder information that should be filtered out"""
+    if not text or not text.strip():
+        return True
+    
+    placeholder_indicators = [
+        'not provided',
+        'not specified',
+        'not available',
+        'n/a',
+        '[', ']', 
+        'none',
+        'nil'
+    ]
+    
+    text_lower = text.lower().strip()
+    return any(indicator in text_lower for indicator in placeholder_indicators)
+
+def clean_contact_info(contact_lines):
+    """Clean and filter contact information, removing placeholder text"""
+    cleaned_lines = []
+    
+    for line in contact_lines:
+        line = line.strip()
+        if not line or is_placeholder_text(line):
+            continue
+        
+
+        if '|' in line:
+            parts = [part.strip() for part in line.split('|')]
+            valid_parts = [part for part in parts if not is_placeholder_text(part)]
+            if valid_parts:
+                cleaned_lines.extend(valid_parts)
+        else:
+            cleaned_lines.append(line)
+    
+    return cleaned_lines
+
+def create_pdf_from_data(parsed_data):
+    """
+    Enhanced PDF generation with better formatting and spacing, filtering out placeholder text
+    """
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(
+        buffer, 
+        pagesize=letter,
+        rightMargin=0.75*inch, 
+        leftMargin=0.75*inch,
+        topMargin=0.75*inch, 
+        bottomMargin=0.75*inch
+    )
+
+    styles = get_resume_styles()
+    story = []
+
+
+    personal_info = parsed_data.get('PERSONAL_INFO', '').strip()
+    if personal_info:
+        lines = [line.strip() for line in personal_info.split('\n') if line.strip()]
+        if lines:
+
+            name = lines[0]
+            if not is_placeholder_text(name):
+                story.append(Paragraph(name, styles['ResumeTitle']))
+            
+
+            contact_lines = lines[1:] if len(lines) > 1 else []
+            cleaned_contact = clean_contact_info(contact_lines)
+            
+            if cleaned_contact:
+                contact_info = " | ".join(cleaned_contact)
+                story.append(Paragraph(contact_info, styles['ContactInfo']))
+
+
+    sections_config = [
+        ('EDUCATION', 'EDUCATION'),
+        ('TECHNICAL_SKILLS', 'TECHNICAL SKILLS'),
+        ('EXPERIENCE', 'PROFESSIONAL EXPERIENCE'),
+        ('PROJECTS', 'PROJECTS'),
+        ('CERTIFICATIONS_AWARDS', 'CERTIFICATIONS & AWARDS')
+    ]
+
+    for section_key, section_title in sections_config:
+        content = parsed_data.get(section_key, '').strip()
+        if content and not is_placeholder_text(content):
+
+            story.append(Paragraph(section_title, styles['SectionHeading']))
+            story.append(Spacer(1, 6))
+
+
+            if section_key == 'TECHNICAL_SKILLS':
+
+                lines = content.split('\n')
+                valid_lines = []
+                
+                for line in lines:
+                    line = line.strip()
+                    if line and not is_placeholder_text(line):
+                        if ':' in line:
+
+                            category, skills = line.split(':', 1)
+                            if not is_placeholder_text(skills.strip()):
+                                valid_lines.append(f"<b>{category.strip()}:</b> {skills.strip()}")
+                        else:
+                            valid_lines.append(line)
+                
+                for valid_line in valid_lines:
+                    story.append(Paragraph(valid_line, styles['Content']))
+
+            elif section_key in ['EXPERIENCE', 'PROJECTS']:
+
+                lines = content.split('\n')
+                current_item = []
+                
+                for line in lines:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    
+
+                    if '|' in line and not line.startswith('-'):
+
+                        if current_item:
+                            _process_structured_item_filtered(current_item, story, styles)
+                            current_item = []
+                        current_item.append(line)
+                    else:
+                        current_item.append(line)
+                
+
+                if current_item:
+                    _process_structured_item_filtered(current_item, story, styles)
+
+            else:
+
+                lines = content.split('\n')
+                for line in lines:
+                    line = line.strip()
+                    if line and not is_placeholder_text(line):
+                        if line.startswith('-') or line.startswith('•'):
+                            story.append(Paragraph(f"• {line[1:].strip()}", styles['BulletPoint']))
+                        else:
+                            story.append(Paragraph(line, styles['Content']))
+
+            story.append(Spacer(1, 12))
+
+    doc.build(story)
+    buffer.seek(0)
+    return buffer.getvalue()
+
+def _process_structured_item_filtered(item_lines, story, styles):
+    """Helper function to process structured items like experience or projects, filtering placeholders"""
+    if not item_lines:
+        return
+    
+
+    header = item_lines[0]
+    
+
+    if '|' in header:
+        header_parts = [part.strip() for part in header.split('|')]
+        valid_parts = [part for part in header_parts if not is_placeholder_text(part)]
+        if valid_parts:
+            clean_header = ' | '.join(valid_parts)
+            story.append(Paragraph(f"<b>{clean_header}</b>", styles['SubHeading']))
+        else:
+            return  
+    else:
+        if not is_placeholder_text(header):
+            story.append(Paragraph(f"<b>{header}</b>", styles['SubHeading']))
+        else:
+            return  
+    
+
+    for line in item_lines[1:]:
+        line = line.strip()
+        if line and not is_placeholder_text(line):
+            if line.startswith('-') or line.startswith('•'):
+                story.append(Paragraph(f"• {line[1:].strip()}", styles['BulletPoint']))
+            else:
+                story.append(Paragraph(line, styles['Content']))
+
+def _process_structured_item(item_lines, story, styles):
+    """Helper function to process structured items like experience or projects"""
+    if not item_lines:
+        return
+    
+
+    header = item_lines[0]
+    story.append(Paragraph(f"<b>{header}</b>", styles['SubHeading']))
+    
+
+    for line in item_lines[1:]:
+        line = line.strip()
+        if line:
+            if line.startswith('-') or line.startswith('•'):
+                story.append(Paragraph(f"• {line[1:].strip()}", styles['BulletPoint']))
+            else:
+                story.append(Paragraph(line, styles['Content']))
+
+async def generate_tailored_pdf(resume_text: str, job_description: str, job_title: str, company_name: str):
+    """
+    Complete pipeline: Tailor resume -> Parse with Gemini -> Generate PDF
+    """
+    try:
+
+        tailored_resume = await tailor_resume_with_llm(resume_text, job_description)
+        if not tailored_resume:
+            return None, "Failed to tailor resume"
+        
+
+        model = configure_gemini(GEMINI_API_KEY)
+        if not model:
+            return None, "Failed to configure Gemini"
+        
+
+        gemini_parsed_text = parse_resume_with_gemini(model, tailored_resume)
+        if not gemini_parsed_text:
+            return None, "Failed to parse resume with Gemini"
+        
+
+        parsed_data_dict = parse_gemini_output_to_dict(gemini_parsed_text)
+        
+
+        pdf_data = create_pdf_from_data(parsed_data_dict)
+        if not pdf_data:
+            return None, "Failed to generate PDF"
+        
+
+        company_clean = company_name.replace(' ', '_').replace('/', '-')
+        job_title_clean = job_title.replace(' ', '_').replace('/', '-')
+        filename = f"Tailored_Resume_{company_clean}_{job_title_clean}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
+        
+        return pdf_data, filename
+        
+    except Exception as e:
+        return None, f"Error in PDF generation pipeline: {str(e)}"
 
 def extract_text_from_pdf(file):
     """Extracts text from an uploaded PDF file."""
@@ -195,12 +631,17 @@ def extract_text_from_pdf(file):
 
 
 st.title("✈️ HirePilot")
-st.markdown("Your AI-powered co-pilot for job hunting. Find jobs and tailor your resume instantly.")
+st.markdown("Your AI-powered co-pilot for job hunting. Find jobs and generate tailored professional PDF resumes instantly.")
 
 if 'jobs' not in st.session_state:
     st.session_state.jobs = []
 if 'resume_text' not in st.session_state:
     st.session_state.resume_text = ""
+
+
+if not SERPAPI_KEY or not GEMINI_API_KEY:
+    st.error("❌ API keys not found. Please add `SERPAPI_KEY` and `GEMINI_API_KEY` to your .env file.")
+    st.stop()
 
 with st.sidebar:
     st.header("1. Your Details")
@@ -217,15 +658,13 @@ with st.sidebar:
         if st.session_state.resume_text:
             st.success("✅ Resume uploaded and parsed successfully!")
             with st.expander("View Resume Text"):
-                st.text_area("", st.session_state.resume_text, height=200, disabled=True)
+                st.text_area("Resume Content", st.session_state.resume_text, height=200, disabled=True, label_visibility="collapsed")
 
     find_jobs_button = st.button("Find Jobs", type="primary", use_container_width=True)
 
 if find_jobs_button:
     if not all([job_title, location, experience, st.session_state.resume_text]):
         st.warning("Please fill in all fields (including experience) and upload your resume before searching.")
-    elif not SERPAPI_KEY or not GEMINI_API_KEY:
-        st.error("API keys are not configured. Please add them to your .env file.")
     else:
         with st.spinner("Searching for the best opportunities..."):
             st.session_state.jobs = asyncio.run(find_jobs(job_title, location, experience, job_count))
@@ -252,68 +691,53 @@ if st.session_state.jobs:
                         f'Apply Here</div></a>',
                         unsafe_allow_html=True
                     )
-                    with st.expander("🔍 Debug URL Info", expanded=False):
-                        st.text(f"URL: {job_url}")
-                        st.text(f"Valid: {is_valid_url(job_url)}")
-                        if 'raw_data' in job:
-                            available_links = {k: v for k, v in job['raw_data'].items() 
-                                             if 'link' in k.lower() or k in ['apply_link', 'via', 'related_links']}
-                            st.json(available_links)
                 else:
                     st.caption("❌ No link available")
             
-            with st.expander("See Job Description & Tailor Resume"):
+            with st.expander("See Job Description & Generate Tailored Resume PDF"):
                 st.markdown("### Job Description")
                 st.markdown(job['description'])
                 st.divider()
                 
-                col_tailor1, col_tailor2 = st.columns([3, 1])
-                with col_tailor1:
-                    if st.button("✨ Tailor Resume for this Job", key=f"tailor_{i}", use_container_width=True):
-                        with st.spinner("🤖 AI is optimizing your resume for maximum ATS compatibility and shortlisting chances..."):
-                            tailored_resume = asyncio.run(tailor_resume_with_llm(st.session_state.resume_text, job['description']))
-                            
-                            if tailored_resume:
-                                st.session_state[f'tailored_{i}'] = tailored_resume
-                                st.rerun()  
-                if st.session_state.get(f'tailored_{i}'):
-                    st.divider()
-                    st.success("🎯 Resume tailored successfully! Optimized for ATS and keyword matching.")
-                    
-                    # Download button
-                    with col_tailor2:
-                        if st.session_state.get(f'tailored_{i}'):
-                            company_name = job['company_name'].replace(' ', '_').replace('/', '-')
-                            job_title_clean = job['title'].replace(' ', '_').replace('/', '-')
-                            filename = f"Resume_Tailored_{company_name}_{job_title_clean}.txt"
-                            
-                            st.markdown(
-                                create_download_link(
-                                    st.session_state[f'tailored_{i}'], 
-                                    filename, 
-                                    "📥 Download Resume"
-                                ), 
-                                unsafe_allow_html=True
+                col_action1, col_action2 = st.columns([3, 1])
+                with col_action1:
+                    if st.button("🎯 Generate Tailored Resume PDF", key=f"generate_pdf_{i}", use_container_width=True):
+                        with st.spinner("🤖 AI is tailoring your resume and generating a professional PDF..."):
+                            pdf_data, result = asyncio.run(
+                                generate_tailored_pdf(
+                                    st.session_state.resume_text, 
+                                    job['description'],
+                                    job['title'],
+                                    job['company_name']
+                                )
                             )
-                    st.markdown("### 📊 Resume Comparison")
-                    res_col1, res_col2 = st.columns(2)
-                    
-                    with res_col1:
-                        st.markdown("#### Original Resume")
-                        st.text_area(
-                            "Original", 
-                            st.session_state.resume_text, 
-                            height=500, 
-                            key=f"orig_{i}",
-                            help="Your original resume content"
+                            
+                            if pdf_data:
+                                st.session_state[f'pdf_{i}'] = pdf_data
+                                st.session_state[f'filename_{i}'] = result
+                                st.success("🎉 Professional PDF resume generated successfully!")
+                                st.rerun()
+                            else:
+                                st.error(f"Failed to generate PDF: {result}")
+                
+
+                if st.session_state.get(f'pdf_{i}'):
+                    with col_action2:
+                        st.download_button(
+                            label="📥 Download PDF Resume",
+                            data=st.session_state[f'pdf_{i}'],
+                            file_name=st.session_state[f'filename_{i}'],
+                            mime="application/pdf",
+                            key=f"download_{i}",
+                            use_container_width=True
                         )
-                    
-                    with res_col2:
-                        st.markdown("#### 🎯 ATS-Optimized Resume")
-                        st.text_area(
-                            "Tailored", 
-                            st.session_state[f'tailored_{i}'], 
-                            height=500, 
-                            key=f"new_{i}",
-                            help="AI-optimized resume tailored for this specific job"
-                        )
+
+
+st.markdown("---")
+st.markdown("### 🚀 HirePilot Features")
+st.markdown("""
+- **Smart Job Search**: Find relevant opportunities based on your experience
+- **AI Resume Tailoring**: Automatically optimize your resume for each job
+- **Professional PDF Generation**: Get beautifully formatted, ATS-friendly resumes
+- **Direct Application**: Quick access to job application links
+""")

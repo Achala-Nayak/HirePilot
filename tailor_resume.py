@@ -436,20 +436,5 @@ def main():
         else:
             st.warning("📁 Please upload a resume text file to begin.")
 
-    # Add instructions
-    with st.expander("ℹ️ How to use"):
-        st.markdown("""
-        1. **Upload your resume text file** (.txt format) in the left column
-        2. **Click the generate button** to process your resume with AI
-        3. **Review the parsed sections** to ensure all information was captured
-        4. **Download your professional PDF resume**
-        
-        **Tips for better results:**
-        - Ensure your text file is well-formatted with clear sections
-        - Include complete contact information (email, phone, LinkedIn, etc.)
-        - Use consistent formatting for dates and job titles
-        - Separate different sections clearly (Education, Experience, Projects, etc.)
-        """)
-
 if __name__ == "__main__":
     main()
