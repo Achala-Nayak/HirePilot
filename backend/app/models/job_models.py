@@ -40,6 +40,34 @@ class JobSearchResponse(BaseModel):
     total_count: int = Field(default=0, description="Total number of jobs found")
 
 
+class ResumeTailorRequest(BaseModel):
+    """Request model for resume tailoring"""
+    resume_text: str = Field(..., min_length=1, description="Original resume text content")
+    job_description: str = Field(..., min_length=1, description="Job description to tailor resume for")
+    job_title: str = Field(..., min_length=1, max_length=200, description="Job title")
+    company_name: str = Field(..., min_length=1, max_length=200, description="Company name")
+
+
+class ResumeTailorResponse(BaseModel):
+    """Response model for resume tailoring"""
+    success: bool = Field(..., description="Whether the tailoring was successful")
+    message: str = Field(..., description="Response message")
+    tailored_resume_text: Optional[str] = Field(None, description="Tailored resume text")
+    filename: Optional[str] = Field(None, description="Suggested filename for the tailored resume")
+
+
+class ResumeParseRequest(BaseModel):
+    """Request model for resume parsing"""
+    resume_text: str = Field(..., min_length=1, description="Resume text to parse")
+
+
+class ResumeParseResponse(BaseModel):
+    """Response model for resume parsing"""
+    success: bool = Field(..., description="Whether the parsing was successful")
+    message: str = Field(..., description="Response message")
+    parsed_data: Optional[Dict[str, str]] = Field(None, description="Parsed resume data in sections")
+
+
 class ErrorResponse(BaseModel):
     """Error response model"""
     success: bool = Field(False, description="Always false for errors")
