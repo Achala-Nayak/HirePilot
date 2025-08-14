@@ -1,75 +1,85 @@
 "use client";
 
-import { useState } from "react";
-import axios from "axios";
+import { useState, useRef } from "react";
+import { Header } from "@/components/Header";
+import { HeroSection } from "@/components/HeroSection";
+import { FeaturesSection } from "@/components/FeaturesSection";
+import { JobSearchForm } from "@/components/JobSearchForm";
+import { JobResults } from "@/components/JobResults";
+import { Footer } from "@/components/Footer";
+import { JobResult, JobSearchRequest } from "@/types/api";
 
-export default function UploadPage() {
-  const [targetRole, setTargetRole] = useState("");
-  const [skills, setSkills] = useState("");
-  const [location, setLocation] = useState("");
-  const [file, setFile] = useState<File | null>(null);
+export default function HomePage() {
+  const [jobs, setJobs] = useState<JobResult[]>([]);
+  const [searchParams, setSearchParams] = useState<JobSearchRequest | null>(null);
+  const [resumeText, setResumeText] = useState<string>("");
+  const [showResults, setShowResults] = useState(false);
+  
+  const formRef = useRef<HTMLDivElement>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleJobsFound = (foundJobs: JobResult[], params: JobSearchRequest) => {
+    setJobs(foundJobs);
+    setSearchParams(params);
+    setShowResults(true);
+  };
 
-    if (!file) {
-      alert("Please upload your resume.");
-      return;
-    }
+  const handleResumeUploaded = (text: string) => {
+    setResumeText(text);
+  };
 
-    const formData = new FormData();
-    formData.append("target_role", targetRole);
-    formData.append("skills", skills);
-    formData.append("location", location);
-    formData.append("file", file);
-
-    try {
-      const res = await axios.post("http://localhost:8000/upload", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-      console.log(res.data);
-      alert("Upload successful!");
-    } catch (error) {
-      console.error(error);
-      alert("Upload failed!");
-    }
+  const handleGetStarted = () => {
+    formRef.current?.scrollIntoView({ 
+      behavior: 'smooth',
+      block: 'start'
+    });
   };
 
   return (
-    <main className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Upload Resume</h1>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          type="text"
-          placeholder="Target Role"
-          value={targetRole}
-          onChange={(e) => setTargetRole(e.target.value)}
-          className="border p-2 w-full"
-        />
-        <input
-          type="text"
-          placeholder="Skills"
-          value={skills}
-          onChange={(e) => setSkills(e.target.value)}
-          className="border p-2 w-full"
-        />
-        <input
-          type="text"
-          placeholder="Location"
-          value={location}
-          onChange={(e) => setLocation(e.target.value)}
-          className="border p-2 w-full"
-        />
-        <input
-          type="file"
-          accept=".pdf,.doc,.docx"
-          onChange={(e) => setFile(e.target.files?.[0] || null)}
-          className="border p-2 w-full"
-        />
-        <button type="submit" className="bg-blue-500 text-white p-2 rounded">
-          Submit
-        </button>
-      </form>
-    </main>
+    <div className="min-h-screen">
+      <Header />
+      
+      {/* Hero Section */}
+      <HeroSection onGetStarted={handleGetStarted} />
+      
+      {/* Features Section */}
+      <FeaturesSection />
+      
+      {/* Job Search Form */}
+      <section className="py-20 px-4 bg-gradient-to-br from-slate-50 to-blue-50" ref={formRef}>
+        <div className="container mx-auto max-w-6xl">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              Start Your{" "}
+              <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                Job Search Journey
+              </span>
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Upload your resume and let our AI find the perfect job opportunities for you
+            </p>
+          </div>
+          
+          <JobSearchForm 
+            onJobsFound={handleJobsFound}
+            onResumeUploaded={handleResumeUploaded}
+          />
+        </div>
+      </section>
+
+      {/* Job Results */}
+      {showResults && jobs.length > 0 && searchParams && (
+        <section className="py-20 px-4 bg-white">
+          <div className="container mx-auto">
+            <JobResults 
+              jobs={jobs}
+              searchParams={searchParams}
+              resumeText={resumeText}
+            />
+          </div>
+        </section>
+      )}
+      
+      <Footer />
+    </div>
   );
 }
