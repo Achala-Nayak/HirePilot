@@ -1,0 +1,8 @@
+streamlit
+python-dotenv
+httpx
+pypdf2
+fastapi 
+uvicorn 
+python-multipart 
+pydantic

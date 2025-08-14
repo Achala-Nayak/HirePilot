@@ -1,15 +1,90 @@
 # Python
 __pycache__/
+*.py[cod]
+*.pyo
+*.pyd
 *.pyc
 venv/
+.venv/
+ENV/
+env/
+pip-wheel-metadata/
+*.egg-info/
+.eggs/
+*.sqlite3
+# pytest
+.pytest_cache/
+# coverage
+.coverage
+coverage/
+htmlcov/
+# mypy
+.mypy_cache/
+# pyenv
+.python-version
+# virtualenv
+local/.venv/
 
 # Node
 node_modules/
 .next/
 dist/
+.build/
+.npm/
+jspm_packages/
+.cache/
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
 
 # OS
 .DS_Store
+Thumbs.db
 
 # Env files
 .env
+.env.*
+.env.local
+.env.production.local
+.env.development.local
+
+# Editor/IDE
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+*.code-workspace
+
+# Docker
+docker-compose.override.yml
+.env.docker
+
+# Vercel / Deployment
+.vercel/
+.next/cache/
+
+# Build tools / caches
+.cache/
+dist/
+build/
+public/build/
+
+# Misc
+coverage-reports/
+.sass-cache/
+.history/
+
+# JetBrains
+out/
+
+# macOS
+.DS_Store
+
+# Other
+coverage/
+
+# End of file
+
