@@ -15,7 +15,7 @@ async def upload_resume(
     num_jobs: int = Form(...),
     file: UploadFile = File(...)
 ):
-    # Save uploaded file
+
     file_path = os.path.join(UPLOAD_FOLDER, file.filename)
     with open(file_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)

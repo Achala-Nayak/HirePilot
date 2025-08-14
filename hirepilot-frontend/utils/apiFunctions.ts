@@ -1,4 +1,3 @@
-// hirepilot-frontend/utils/apiFunctions.ts
 import { api } from "@/services/api";
 
 export async function getRoot() {

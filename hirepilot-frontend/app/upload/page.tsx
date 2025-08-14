@@ -9,6 +9,7 @@ export default function UploadPage() {
   const [yearsExperience, setYearsExperience] = useState("");
   const [numJobs, setNumJobs] = useState("");
   const [file, setFile] = useState<File | null>(null);
+  const [jobs, setJobs] = useState<any[]>([]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,21 +27,30 @@ export default function UploadPage() {
     formData.append("file", file);
 
     try {
-      const res = await axios.post("http://localhost:8000/upload", formData, {
+
+      await axios.post("http://localhost:8000/upload", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      console.log(res.data);
-      alert("Upload successful!");
+
+
+      const searchForm = new FormData();
+      searchForm.append("job_title", jobTitle);
+      searchForm.append("job_location", jobLocation);
+      searchForm.append("num_jobs", numJobs);
+
+      const res = await axios.post("http://localhost:8000/search_jobs", searchForm);
+      setJobs(res.data.jobs);
+
     } catch (error) {
       console.error(error);
-      alert("Upload failed!");
+      alert("Something went wrong!");
     }
   };
 
   return (
     <main className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Upload Resume</h1>
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <h1 className="text-2xl font-bold mb-4">Upload Resume & Search Jobs</h1>
+      <form onSubmit={handleSubmit} className="space-y-4 mb-6">
         <input
           type="text"
           placeholder="Job Title"
@@ -76,9 +86,31 @@ export default function UploadPage() {
           className="border p-2 w-full"
         />
         <button type="submit" className="bg-blue-500 text-white p-2 rounded">
-          Submit
+          Submit & Search Jobs
         </button>
       </form>
+
+
+      {jobs.length > 0 && (
+        <div>
+          <h2 className="text-xl font-semibold mb-2">Job Results</h2>
+          <ul className="space-y-2">
+            {jobs.map((job, index) => (
+              <li key={index} className="border p-3 rounded">
+                <h3 className="font-bold">{job.title}</h3>
+                <p>{job.company} — {job.location}</p>
+                <a
+                  href={job.link}
+                  target="_blank"
+                  className="text-blue-500 underline"
+                >
+                  View Job
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </main>
   );
 }
