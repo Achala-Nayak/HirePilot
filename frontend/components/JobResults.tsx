@@ -72,7 +72,7 @@ export function JobResults({ jobs, searchParams, resumeText }: JobResultsProps) 
     return (
       <Card className="w-full max-w-4xl mx-auto mt-8">
         <CardContent className="text-center py-8">
-          <p className="text-gray-500">No jobs found. Try adjusting your search criteria.</p>
+          <p className="text-muted-foreground">No jobs found. Try adjusting your search criteria.</p>
         </CardContent>
       </Card>
     );
@@ -81,30 +81,30 @@ export function JobResults({ jobs, searchParams, resumeText }: JobResultsProps) 
   return (
     <div className="w-full max-w-6xl mx-auto mt-8 space-y-6">
       <div className="text-center">
-        <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+        <h2 className="text-3xl font-bold text-foreground">
           Found {jobs.length} Opportunities
         </h2>
-        <p className="text-gray-600 mt-2">
+        <p className="text-muted-foreground mt-2">
           Perfect matches for {searchParams.job_title} in {searchParams.location}
         </p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {jobs.map((job, index) => (
-          <Card key={job.job_id || index} className="group hover:shadow-lg transition-all duration-300 border-0 shadow-md bg-white/90 backdrop-blur">
+          <Card key={job.job_id || index} className="group hover:shadow-lg transition-all duration-300 border border-border shadow-md bg-card backdrop-blur">
             <CardHeader className="pb-3">
               <div className="flex items-start justify-between">
                 <div className="flex-1 min-w-0">
-                  <CardTitle className="text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-2">
+                  <CardTitle className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2">
                     {job.title || "Untitled Position"}
                   </CardTitle>
                   <CardDescription className="flex items-center mt-2 space-x-4">
-                    <div className="flex items-center text-gray-600">
+                    <div className="flex items-center text-muted-foreground">
                       <Building className="h-4 w-4 mr-1" />
                       <span className="font-medium">{job.company_name || "Unknown Company"}</span>
                     </div>
                     {job.location && (
-                      <div className="flex items-center text-gray-500">
+                      <div className="flex items-center text-muted-foreground">
                         <MapPin className="h-4 w-4 mr-1" />
                         <span>{job.location}</span>
                       </div>
@@ -121,7 +121,7 @@ export function JobResults({ jobs, searchParams, resumeText }: JobResultsProps) 
               {/* Job Description Preview */}
               {job.description && (
                 <div className="space-y-2">
-                  <p className="text-sm text-gray-700 line-clamp-3">
+                  <p className="text-sm text-muted-foreground line-clamp-3">
                     {truncateText(job.description, 200)}
                   </p>
                   <Dialog>
@@ -138,7 +138,7 @@ export function JobResults({ jobs, searchParams, resumeText }: JobResultsProps) 
                         </DialogTitle>
                       </DialogHeader>
                       <ScrollArea className="h-96 mt-4">
-                        <div className="whitespace-pre-wrap text-sm text-gray-700 pr-4">
+                        <div className="whitespace-pre-wrap text-sm text-muted-foreground pr-4">
                           {job.description}
                         </div>
                       </ScrollArea>
@@ -155,7 +155,7 @@ export function JobResults({ jobs, searchParams, resumeText }: JobResultsProps) 
                   <Button
                     variant="outline"
                     size="sm"
-                    className="flex-1 border-blue-200 text-blue-600 hover:bg-blue-50 hover:border-blue-300"
+                    className="flex-1 border-border hover:bg-muted hover:border-primary"
                     onClick={() => window.open(job.job_url, '_blank')}
                   >
                     <ExternalLink className="h-4 w-4 mr-1" />
@@ -165,7 +165,7 @@ export function JobResults({ jobs, searchParams, resumeText }: JobResultsProps) 
 
                 <Button
                   size="sm"
-                  className="flex-1 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
+                  className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground"
                   onClick={() => handleTailorResume(job)}
                   disabled={isJobTailoring(job.job_id || '') || !job.description}
                 >
@@ -184,7 +184,7 @@ export function JobResults({ jobs, searchParams, resumeText }: JobResultsProps) 
               </div>
 
               {!job.job_url && (
-                <p className="text-xs text-amber-600 bg-amber-50 p-2 rounded border border-amber-200">
+                <p className="text-xs text-muted-foreground bg-muted p-2 rounded border border-border">
                   ⚠️ No direct application link available
                 </p>
               )}
@@ -194,19 +194,19 @@ export function JobResults({ jobs, searchParams, resumeText }: JobResultsProps) 
       </div>
 
       {/* Resume Tailoring Info */}
-      <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200">
+      <Card className="bg-muted border border-border">
         <CardContent className="p-6">
           <div className="flex items-start space-x-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-r from-blue-600 to-purple-600">
-              <Sparkles className="h-4 w-4 text-white" />
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary">
+              <Sparkles className="h-4 w-4 text-primary-foreground" />
             </div>
             <div className="flex-1">
-              <h3 className="font-semibold text-gray-900 mb-1">AI-Powered Resume Tailoring</h3>
-              <p className="text-sm text-gray-600 mb-2">
+              <h3 className="font-semibold text-foreground mb-1">AI-Powered Resume Tailoring</h3>
+              <p className="text-sm text-muted-foreground mb-2">
                 Click "Tailor Resume" to generate a customized resume optimized for each specific job posting. 
                 Our AI analyzes the job description and enhances your resume with relevant keywords and achievements.
               </p>
-              <ul className="text-xs text-gray-500 space-y-1">
+              <ul className="text-xs text-muted-foreground space-y-1">
                 <li>• ATS-optimized formatting</li>
                 <li>• Keyword enhancement</li>
                 <li>• Professional PDF generation</li>

@@ -21,42 +21,42 @@ export function FeaturesSection() {
       title: "Smart Job Search",
       description: "AI-powered job matching that finds opportunities tailored to your skills and experience level.",
       badge: "Core Feature",
-      color: "from-blue-500 to-blue-600"
+      color: "bg-foreground"
     },
     {
       icon: Brain,
       title: "AI Resume Tailoring",
       description: "Automatically optimize your resume for each job application with intelligent keyword matching.",
       badge: "AI Powered",
-      color: "from-purple-500 to-purple-600"
+      color: "bg-foreground"
     },
     {
       icon: FileText,
       title: "Professional PDF Generation",
       description: "Generate beautifully formatted, ATS-optimized PDF resumes instantly.",
       badge: "Premium",
-      color: "from-green-500 to-green-600"
+      color: "bg-foreground"
     },
     {
       icon: Target,
       title: "ATS Optimization",
       description: "Ensure your resume passes through Applicant Tracking Systems with optimized formatting.",
       badge: "Essential",
-      color: "from-orange-500 to-orange-600"
+      color: "bg-foreground"
     },
     {
       icon: Clock,
       title: "Instant Processing",
       description: "Get tailored resumes and job matches in seconds, not hours.",
       badge: "Speed",
-      color: "from-red-500 to-red-600"
+      color: "bg-foreground"
     },
     {
       icon: Shield,
       title: "Privacy First",
       description: "Your data is secure and never shared. Complete privacy and confidentiality guaranteed.",
       badge: "Security",
-      color: "from-gray-500 to-gray-600"
+      color: "bg-foreground"
     }
   ];
 
@@ -88,7 +88,7 @@ export function FeaturesSection() {
   ];
 
   return (
-    <section className="py-20 px-4 bg-white" id="features">
+    <section className="py-20 px-4 bg-background" id="features">
       <div className="container mx-auto max-w-6xl">
         {/* Section Header */}
         <div className="text-center mb-16">
@@ -96,13 +96,13 @@ export function FeaturesSection() {
             <Zap className="h-3 w-3 mr-1" />
             Powerful Features
           </Badge>
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
             Everything You Need to{" "}
-            <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            <span className="text-primary">
               Land Your Dream Job
             </span>
           </h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             Powered by advanced AI technology to give you the competitive edge in today's job market
           </p>
         </div>
@@ -112,20 +112,20 @@ export function FeaturesSection() {
           {features.map((feature, index) => {
             const Icon = feature.icon;
             return (
-              <Card key={index} className="group hover:shadow-xl transition-all duration-300 border-0 shadow-lg">
+              <Card key={index} className="group hover:shadow-xl transition-all duration-300 border border-border shadow-lg">
                 <CardContent className="p-6">
                   <div className="flex items-start space-x-4">
-                    <div className={`flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-r ${feature.color} flex-shrink-0`}>
-                      <Icon className="h-6 w-6 text-white" />
+                    <div className={`flex h-12 w-12 items-center justify-center rounded-lg ${feature.color} flex-shrink-0`}>
+                      <Icon className="h-6 w-6 text-primary-foreground" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center space-x-2 mb-2">
-                        <h3 className="font-semibold text-gray-900 text-lg">{feature.title}</h3>
+                        <h3 className="font-semibold text-foreground text-lg">{feature.title}</h3>
                         <Badge variant="outline" className="text-xs">
                           {feature.badge}
                         </Badge>
                       </div>
-                      <p className="text-gray-600 text-sm leading-relaxed">{feature.description}</p>
+                      <p className="text-muted-foreground text-sm leading-relaxed">{feature.description}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -135,16 +135,16 @@ export function FeaturesSection() {
         </div>
 
         {/* How It Works */}
-        <div className="bg-gradient-to-br from-slate-50 to-blue-50 rounded-2xl p-8 md:p-12" id="how-it-works">
+        <div className="bg-muted rounded-2xl p-8 md:p-12" id="how-it-works">
           <div className="text-center mb-12">
             <Badge variant="secondary" className="mb-4">
               <TrendingUp className="h-3 w-3 mr-1" />
               Simple Process
             </Badge>
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
               How Hire Pilot Works
             </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
               Get from job search to tailored application in 4 simple steps
             </p>
           </div>
@@ -156,22 +156,22 @@ export function FeaturesSection() {
                 <div key={index} className="text-center relative">
                   {/* Step Number */}
                   <div className="relative mb-6">
-                    <div className="w-16 h-16 mx-auto bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center shadow-lg">
-                      <Icon className="h-8 w-8 text-white" />
+                    <div className="w-16 h-16 mx-auto bg-primary rounded-full flex items-center justify-center shadow-lg">
+                      <Icon className="h-8 w-8 text-primary-foreground" />
                     </div>
-                    <div className="absolute -top-2 -right-2 bg-white border-2 border-blue-600 rounded-full w-8 h-8 flex items-center justify-center">
-                      <span className="text-xs font-bold text-blue-600">{step.step}</span>
+                    <div className="absolute -top-2 -right-2 bg-background border-2 border-primary rounded-full w-8 h-8 flex items-center justify-center">
+                      <span className="text-xs font-bold text-primary">{step.step}</span>
                     </div>
                     {/* Connector Line */}
                     {index < processSteps.length - 1 && (
-                      <div className="hidden lg:block absolute top-8 left-full w-full h-0.5 bg-gradient-to-r from-blue-300 to-purple-300 transform -translate-y-1/2" />
+                      <div className="hidden lg:block absolute top-8 left-full w-full h-0.5 bg-border transform -translate-y-1/2" />
                     )}
                   </div>
 
                   {/* Step Content */}
                   <div>
-                    <h3 className="font-semibold text-gray-900 mb-2 text-lg">{step.title}</h3>
-                    <p className="text-gray-600 text-sm">{step.description}</p>
+                    <h3 className="font-semibold text-foreground mb-2 text-lg">{step.title}</h3>
+                    <p className="text-muted-foreground text-sm">{step.description}</p>
                   </div>
                 </div>
               );

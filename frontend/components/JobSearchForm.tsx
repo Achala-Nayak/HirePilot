@@ -113,12 +113,12 @@ export function JobSearchForm({ onJobsFound, onResumeUploaded }: JobSearchFormPr
   ];
 
   return (
-    <Card className="w-full max-w-2xl mx-auto shadow-xl border-0 bg-white/80 backdrop-blur">
+    <Card className="w-full max-w-2xl mx-auto shadow-xl border border-border bg-card backdrop-blur">
       <CardHeader className="text-center pb-4">
-        <CardTitle className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+        <CardTitle className="text-2xl font-bold text-foreground">
           Find Your Dream Job
         </CardTitle>
-        <p className="text-gray-600 mt-2">
+        <p className="text-muted-foreground mt-2">
           Upload your resume and let AI find the perfect opportunities for you
         </p>
       </CardHeader>
@@ -134,28 +134,28 @@ export function JobSearchForm({ onJobsFound, onResumeUploaded }: JobSearchFormPr
               className={`
                 border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors
                 ${isDragActive 
-                  ? "border-blue-500 bg-blue-50" 
-                  : "border-gray-300 hover:border-blue-400 hover:bg-gray-50"
+                  ? "border-primary bg-muted" 
+                  : "border-border hover:border-primary hover:bg-muted/50"
                 }
               `}
             >
               <input {...getInputProps()} />
-              <Upload className="mx-auto h-8 w-8 text-gray-400 mb-2" />
-              <p className="text-sm text-gray-600">
+              <Upload className="mx-auto h-8 w-8 text-muted-foreground mb-2" />
+              <p className="text-sm text-muted-foreground">
                 {isDragActive
                   ? "Drop your resume here..."
                   : "Drag & drop your resume here, or click to select"}
               </p>
-              <p className="text-xs text-gray-500 mt-1">PDF files only, max 10MB</p>
+              <p className="text-xs text-muted-foreground mt-1">PDF files only, max 10MB</p>
             </div>
           ) : (
-            <div className="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-lg">
+            <div className="flex items-center justify-between p-3 bg-muted border border-border rounded-lg">
               <div className="flex items-center space-x-2">
-                <FileText className="h-5 w-5 text-green-600" />
-                <span className="text-sm font-medium text-green-800">
+                <FileText className="h-5 w-5 text-foreground" />
+                <span className="text-sm font-medium text-foreground">
                   {uploadedFile.name}
                 </span>
-                <Badge variant="secondary" className="bg-green-100 text-green-800">
+                <Badge variant="secondary">
                   {(uploadedFile.size / 1024 / 1024).toFixed(1)} MB
                 </Badge>
               </div>
@@ -163,14 +163,14 @@ export function JobSearchForm({ onJobsFound, onResumeUploaded }: JobSearchFormPr
                 variant="ghost"
                 size="sm"
                 onClick={removeFile}
-                className="text-red-600 hover:text-red-800 hover:bg-red-50"
+                className="text-destructive hover:text-destructive/80 hover:bg-destructive/10"
               >
                 <X className="h-4 w-4" />
               </Button>
             </div>
           )}
           {isExtracting && (
-            <div className="flex items-center space-x-2 text-sm text-blue-600">
+            <div className="flex items-center space-x-2 text-sm text-muted-foreground">
               <Loader2 className="h-4 w-4 animate-spin" />
               <span>Extracting text from resume...</span>
             </div>
@@ -188,7 +188,7 @@ export function JobSearchForm({ onJobsFound, onResumeUploaded }: JobSearchFormPr
               placeholder="e.g., Software Engineer"
               value={formData.job_title}
               onChange={(e) => setFormData({ ...formData, job_title: e.target.value })}
-              className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+              className="border-border focus:border-ring focus:ring-ring"
             />
           </div>
 
@@ -201,7 +201,7 @@ export function JobSearchForm({ onJobsFound, onResumeUploaded }: JobSearchFormPr
               placeholder="e.g., San Francisco, CA"
               value={formData.location}
               onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-              className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+              className="border-border focus:border-ring focus:ring-ring"
             />
           </div>
         </div>
@@ -217,7 +217,7 @@ export function JobSearchForm({ onJobsFound, onResumeUploaded }: JobSearchFormPr
                 setFormData({ ...formData, experience: value })
               }
             >
-              <SelectTrigger className="border-gray-300 focus:border-blue-500 focus:ring-blue-500">
+              <SelectTrigger className="border-border focus:border-ring focus:ring-ring">
                 <SelectValue placeholder="Select experience level" />
               </SelectTrigger>
               <SelectContent>
@@ -240,7 +240,7 @@ export function JobSearchForm({ onJobsFound, onResumeUploaded }: JobSearchFormPr
                 setFormData({ ...formData, job_count: parseInt(value) })
               }
             >
-              <SelectTrigger className="border-gray-300 focus:border-blue-500 focus:ring-blue-500">
+              <SelectTrigger className="border-border focus:border-ring focus:ring-ring">
                 <SelectValue placeholder="Select count" />
               </SelectTrigger>
               <SelectContent>
@@ -258,7 +258,7 @@ export function JobSearchForm({ onJobsFound, onResumeUploaded }: JobSearchFormPr
         <Button
           onClick={handleSearch}
           disabled={isSearching || !resumeText.trim() || !formData.job_title.trim() || !formData.location.trim()}
-          className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium py-2.5"
+          className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium py-2.5"
           size="lg"
         >
           {isSearching ? (
