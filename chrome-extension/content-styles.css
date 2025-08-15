@@ -1,0 +1,230 @@
+/* Content Script CSS for HirePilot Auto Apply Extension */
+
+/* Main UI Container */
+#hirepilot-auto-apply-ui {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 10000;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.hirepilot-panel {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  width: 320px;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+}
+
+/* Header */
+.hirepilot-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.hirepilot-header img {
+  width: 24px;
+  height: 24px;
+  margin-right: 8px;
+}
+
+.hirepilot-header span {
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.hirepilot-close {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.hirepilot-close:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Content */
+.hirepilot-content {
+  padding: 16px;
+}
+
+/* Status */
+.hirepilot-status {
+  background: #f8fafc;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 16px;
+  font-size: 13px;
+  color: #475569;
+  border-left: 4px solid #3b82f6;
+}
+
+/* Actions */
+.hirepilot-actions {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.hirepilot-btn {
+  flex: 1;
+  padding: 10px 12px;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+
+.hirepilot-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.hirepilot-btn-primary {
+  background: #3b82f6;
+  color: white;
+}
+
+.hirepilot-btn-primary:hover:not(:disabled) {
+  background: #2563eb;
+  transform: translateY(-1px);
+}
+
+.hirepilot-btn-success {
+  background: #10b981;
+  color: white;
+}
+
+.hirepilot-btn-success:hover:not(:disabled) {
+  background: #059669;
+  transform: translateY(-1px);
+}
+
+/* Progress */
+.hirepilot-progress {
+  margin-top: 12px;
+}
+
+.hirepilot-progress-bar {
+  background: #f1f5f9;
+  border-radius: 8px;
+  height: 6px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.hirepilot-progress-fill {
+  background: linear-gradient(90deg, #3b82f6, #1d4ed8);
+  height: 100%;
+  width: 100%;
+  animation: hirepilot-progress-animation 2s ease-in-out infinite;
+}
+
+@keyframes hirepilot-progress-animation {
+  0% { transform: translateX(-100%); }
+  50% { transform: translateX(0%); }
+  100% { transform: translateX(100%); }
+}
+
+.hirepilot-progress-text {
+  font-size: 12px;
+  color: #6b7280;
+  text-align: center;
+  display: block;
+}
+
+/* Form Field Highlighting */
+.hirepilot-filled-field {
+  background-color: #ecfdf5 !important;
+  border-color: #10b981 !important;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1) !important;
+}
+
+/* Success Animation */
+@keyframes hirepilot-success-pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.hirepilot-success {
+  animation: hirepilot-success-pulse 0.6s ease-in-out;
+}
+
+/* Notification Styles */
+.hirepilot-notification {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: white;
+  border-radius: 8px;
+  padding: 12px 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  border-left: 4px solid #10b981;
+  z-index: 10001;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 14px;
+  color: #111827;
+  max-width: 400px;
+  animation: hirepilot-slide-down 0.3s ease-out;
+}
+
+.hirepilot-notification.error {
+  border-left-color: #ef4444;
+}
+
+.hirepilot-notification.warning {
+  border-left-color: #f59e0b;
+}
+
+@keyframes hirepilot-slide-down {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* Hide native form validation messages */
+input:invalid,
+textarea:invalid {
+  box-shadow: none !important;
+}
+
+/* Ensure extension UI doesn't break page layout */
+#hirepilot-auto-apply-ui * {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+#hirepilot-auto-apply-ui *:not(input):not(textarea):not(select) {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+}

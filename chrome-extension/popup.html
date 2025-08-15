@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HirePilot Auto Apply</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="popup-container">
+    <header class="popup-header">
+      <img src="icons/icon32.png" alt="HirePilot" class="logo">
+      <h1>HirePilot</h1>
+    </header>
+    
+    <main class="popup-content">
+      <!-- Status Section -->
+      <section class="status-section">
+        <div class="status-indicator" id="statusIndicator">
+          <span class="status-dot"></span>
+          <span class="status-text" id="statusText">Ready</span>
+        </div>
+        <div class="applications-count">
+          <span>Today: </span>
+          <span id="applicationsToday">0</span>
+          <span> / </span>
+          <span id="maxApplications">10</span>
+        </div>
+      </section>
+      
+      <!-- Quick Actions -->
+      <section class="actions-section">
+        <button id="analyzeJob" class="btn btn-primary">
+          🔍 Analyze Current Job
+        </button>
+        <button id="toggleAutoApply" class="btn btn-toggle">
+          <span id="toggleText">Enable Auto Apply</span>
+        </button>
+      </section>
+      
+      <!-- Settings Toggle -->
+      <section class="settings-section">
+        <button id="settingsToggle" class="btn btn-secondary">
+          ⚙️ Settings
+        </button>
+        
+        <div id="settingsPanel" class="settings-panel" style="display: none;">
+          <div class="setting-item">
+            <label for="maxAppsInput">Max applications per day:</label>
+            <input type="number" id="maxAppsInput" min="1" max="50" value="10">
+          </div>
+          
+          <div class="setting-item">
+            <label for="autoMode">Auto-apply mode:</label>
+            <select id="autoMode">
+              <option value="manual">Manual confirmation</option>
+              <option value="semi">Semi-automatic</option>
+              <option value="full">Fully automatic</option>
+            </select>
+          </div>
+          
+          <div class="setting-item">
+            <button id="saveSettings" class="btn btn-success">Save Settings</button>
+          </div>
+        </div>
+      </section>
+      
+      <!-- Profile Section -->
+      <section class="profile-section">
+        <button id="profileToggle" class="btn btn-secondary">
+          👤 Profile
+        </button>
+        
+        <div id="profilePanel" class="profile-panel" style="display: none;">
+          <form id="profileForm">
+            <div class="form-group">
+              <label for="fullName">Full Name:</label>
+              <input type="text" id="fullName" placeholder="John Doe">
+            </div>
+            
+            <div class="form-group">
+              <label for="email">Email:</label>
+              <input type="email" id="email" placeholder="john@example.com">
+            </div>
+            
+            <div class="form-group">
+              <label for="phone">Phone:</label>
+              <input type="tel" id="phone" placeholder="+1 (555) 123-4567">
+            </div>
+            
+            <div class="form-group">
+              <label for="linkedin">LinkedIn URL:</label>
+              <input type="url" id="linkedin" placeholder="https://linkedin.com/in/johndoe">
+            </div>
+            
+            <div class="form-group">
+              <label for="portfolio">Portfolio URL:</label>
+              <input type="url" id="portfolio" placeholder="https://johndoe.com">
+            </div>
+            
+            <button type="submit" class="btn btn-success">Save Profile</button>
+          </form>
+        </div>
+      </section>
+      
+      <!-- Recent Applications -->
+      <section class="recent-section">
+        <h3>Recent Applications</h3>
+        <div id="recentApplications" class="recent-list">
+          <p class="no-applications">No applications yet today</p>
+        </div>
+      </section>
+    </main>
+    
+    <footer class="popup-footer">
+      <a href="#" id="openDashboard">Open Dashboard</a>
+      <span class="version">v1.0</span>
+    </footer>
+  </div>
+  
+  <script src="popup.js"></script>
+</body>
+</html>
