@@ -13,8 +13,8 @@ export function Footer() {
   const currentYear = new Date().getFullYear();
 
   const socialLinks = [
-    { name: "GitHub", icon: Github, href: "https://github.com" },
-    { name: "LinkedIn", icon: Linkedin, href: "https://linkedin.com" },
+    { name: "GitHub", icon: Github, href: "https://github.com/Achala-Nayak" },
+    { name: "LinkedIn", icon: Linkedin, href: "https://www.linkedin.com/in/achalanayak/" },
   ];
 
   return (

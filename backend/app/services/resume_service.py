@@ -36,47 +36,67 @@ def configure_gemini() -> Optional[genai.GenerativeModel]:
 
 
 def get_resume_styles():
-    """Initialize and return a reportlab stylesheet with custom styles."""
+    """Initialize and return a reportlab stylesheet with enhanced professional styles for 2-page layout."""
     styles = getSampleStyleSheet()
 
     custom_styles = {
         'ResumeTitle': ParagraphStyle(
             name='ResumeTitle',
             fontName='Helvetica-Bold',
-            fontSize=22,
-            leading=26,
+            fontSize=20,
+            leading=24,
             alignment=TA_CENTER,
-            spaceAfter=6,
+            spaceAfter=4,
             textColor=darkblue
         ),
         'ContactInfo': ParagraphStyle(
             name='ContactInfo',
             fontName='Helvetica',
-            fontSize=10,
-            leading=12,
+            fontSize=9,
+            leading=11,
             alignment=TA_CENTER,
-            spaceAfter=18
+            spaceAfter=16
+        ),
+        'ProfessionalSummary': ParagraphStyle(
+            name='ProfessionalSummary',
+            fontName='Helvetica',
+            fontSize=10,
+            leading=13,
+            alignment=TA_LEFT,
+            spaceAfter=8,
+            leftIndent=0,
+            firstLineIndent=0
         ),
         'SectionHeading': ParagraphStyle(
             name='SectionHeading',
             fontName='Helvetica-Bold',
-            fontSize=12,
-            leading=14,
+            fontSize=11,
+            leading=13,
             alignment=TA_LEFT,
-            spaceBefore=12,
-            spaceAfter=6,
+            spaceBefore=10,
+            spaceAfter=4,
             textColor=darkblue,
             borderWidth=1,
             borderColor=darkblue,
-            borderPadding=2
+            borderPadding=1
+        ),
+        'SubSectionHeading': ParagraphStyle(
+            name='SubSectionHeading',
+            fontName='Helvetica-Bold',
+            fontSize=10,
+            leading=12,
+            alignment=TA_LEFT,
+            spaceBefore=6,
+            spaceAfter=2,
+            textColor=darkblue
         ),
         'Content': ParagraphStyle(
             name='Content',
             fontName='Helvetica',
-            fontSize=10,
-            leading=12,
+            fontSize=9,
+            leading=11,
             alignment=TA_LEFT,
-            spaceAfter=4,
+            spaceAfter=3,
             leftIndent=0
         ),
         'SubHeading': ParagraphStyle(
@@ -86,16 +106,25 @@ def get_resume_styles():
             leading=12,
             alignment=TA_LEFT,
             spaceAfter=2,
-            spaceBefore=4
+            spaceBefore=3
         ),
         'BulletPoint': ParagraphStyle(
             name='BulletPoint',
             fontName='Helvetica',
-            fontSize=10,
-            leading=12,
+            fontSize=9,
+            leading=11,
             alignment=TA_LEFT,
-            leftIndent=15,
-            bulletIndent=5,
+            leftIndent=12,
+            bulletIndent=3,
+            spaceAfter=2
+        ),
+        'CompetencyItem': ParagraphStyle(
+            name='CompetencyItem',
+            fontName='Helvetica',
+            fontSize=9,
+            leading=11,
+            alignment=TA_LEFT,
+            leftIndent=8,
             spaceAfter=2
         )
     }
@@ -107,32 +136,55 @@ def get_resume_styles():
 
 
 async def tailor_resume_with_llm(resume_text: str, job_description: str) -> Optional[str]:
-    """Use the Google Gemini API to tailor a resume while maintaining original structure."""
+    """Use the Google Gemini API to tailor a resume for professional 2-page format with optimal section division."""
     prompt = f"""
-    You are an expert ATS-optimized resume writer and career coach. Your task is to strategically tailor a resume to maximize shortlisting chances for a specific job while maintaining the exact original structure, formatting, and visual appearance.
+    You are an expert ATS-optimized resume writer and senior career strategist specializing in creating high-impact, professional resumes. Your task is to craft an exceptional, executive-level resume that maximizes interview opportunities while maintaining a clean, professional 2-page format with strategically divided sections.
 
-    **CRITICAL REQUIREMENTS:**
-    1. PRESERVE the exact structure, section order, formatting, and visual layout of the original resume
-    2. MAINTAIN all contact information, links, URLs, and personal details exactly as provided
-    3. KEEP the same number of sections and subsections in the same order
-    4. PRESERVE original formatting (bullet points, spacing, capitalization style, etc.)
-    5. DO NOT add or remove sections - only optimize content within existing sections
+    **PREMIUM PROFESSIONAL REQUIREMENTS:**
+    1. **2-Page Optimization**: Structure content to fit exactly 2 pages with balanced section distribution
+    2. **Executive Presentation**: Use sophisticated language and executive-level terminology
+    3. **Strategic Section Division**: Organize sections for maximum visual impact and readability
+    4. **ATS & Human Optimization**: Balance keyword integration with compelling human readability
+    5. **Professional Branding**: Create a cohesive personal brand throughout the document
 
-    **OPTIMIZATION STRATEGY:**
-    1. **Keyword Integration**: Naturally incorporate relevant keywords from the job description into existing bullet points and descriptions
-    2. **Skills Alignment**: Emphasize skills mentioned in the JD within existing content areas
-    3. **Quantified Achievements**: Enhance existing achievements with metrics where appropriate
-    4. **Professional Summary**: If one exists, align it with job requirements; if not, don't add one
-    5. **ATS Optimization**: Use industry-standard terminology and action verbs that match the job posting
-    6. **Experience Relevance**: Reframe existing experience points to highlight relevance to the target role
+    **ADVANCED CONTENT STRATEGY:**
+    1. **Professional Summary/Profile**: Create a powerful 3-4 line executive summary highlighting unique value proposition
+    2. **Core Competencies**: Curate 8-12 high-impact keywords and skills aligned with the target role
+    3. **Professional Experience**: 
+       - Prioritize most relevant and recent experiences
+       - Use CAR (Challenge-Action-Result) format for bullet points
+       - Quantify ALL achievements with specific metrics, percentages, dollar amounts
+       - Focus on business impact and leadership accomplishments
+    4. **Technical Proficiency**: Categorize technical skills by proficiency level
+    5. **Education & Certifications**: Highlight relevant credentials prominently
+    6. **Strategic Projects**: Showcase high-impact projects with measurable outcomes
+
+    **EXECUTIVE WRITING STANDARDS:**
+    - Use power verbs: Orchestrated, Spearheaded, Architected, Optimized, Revolutionized, Transformed
+    - Emphasize leadership, strategy, and business impact over task descriptions
+    - Include industry-specific terminology and technical jargon where appropriate
+    - Demonstrate progression in responsibility and scope
+    - Showcase cross-functional collaboration and stakeholder management
+    - Highlight innovation, process improvement, and cost optimization
+
+    **SECTION DISTRIBUTION FOR 2 PAGES:**
+    Page 1: Contact Info, Professional Summary, Core Competencies, Primary Work Experience (2-3 most relevant roles)
+    Page 2: Additional Experience, Technical Skills, Education, Certifications, Key Projects/Achievements
 
     **CONTENT ENHANCEMENT RULES:**
-    - Replace generic descriptions with role-specific, impactful language
-    - Use strong action verbs (Led, Developed, Implemented, Optimized, etc.)
-    - Include relevant technical skills and tools mentioned in the job description
-    - Quantify achievements wherever possible (percentages, numbers, timeframes)
-    - Mirror the job description's language and terminology naturally
-    - Ensure consistency in tense and formatting throughout
+    - Transform basic job duties into strategic accomplishments
+    - Use specific metrics: "Increased efficiency by 35%", "Reduced costs by $2.1M annually"
+    - Incorporate industry buzzwords and trending technologies from the job description
+    - Ensure each bullet point demonstrates value delivered to the organization
+    - Use parallel structure and consistent formatting throughout
+    - Optimize keyword density without compromising readability
+
+    **QUALITY ASSURANCE:**
+    - Executive-level language and tone throughout
+    - Error-free grammar and professional presentation
+    - Consistent formatting and spacing
+    - Strategic use of white space for visual appeal
+    - Professional typography and section hierarchy
 
     **Original Resume:**
     {resume_text}
@@ -140,9 +192,9 @@ async def tailor_resume_with_llm(resume_text: str, job_description: str) -> Opti
     **Target Job Description:**
     {job_description}
 
-    **Instructions:** Return ONLY the complete tailored resume with no additional commentary, explanations, or formatting changes. The output should be ready for immediate use and download.
+    **Instructions:** Create a premium, executive-level tailored resume optimized for both ATS systems and human reviewers. Structure the content for professional 2-page layout with strategic section division. Return ONLY the complete tailored resume with no additional commentary. The output should represent the highest standard of professional resume writing.
 
-    **Tailored Resume:**
+    **Professional Tailored Resume:**
     """
     
     payload = {"contents": [{"parts": [{"text": prompt}]}]}
@@ -168,61 +220,90 @@ async def tailor_resume_with_llm(resume_text: str, job_description: str) -> Opti
 
 
 def parse_resume_with_gemini(model: genai.GenerativeModel, resume_text: str) -> Optional[str]:
-    """Enhanced parsing with better prompt structure."""
+    """Enhanced parsing for professional resume structure with comprehensive section extraction."""
     prompt = f"""
-    Please parse the following resume text and extract information into these sections.
-    For each section, provide clean, structured output with proper formatting.
-    
-    IMPORTANT: Extract ALL information available, including:
-    - All contact details (email, phone, LinkedIn, GitHub, portfolio links, address)
-    - All education details (degree, university, GPA, graduation date, relevant coursework)
-    - All technical skills (programming languages, frameworks, databases, tools)
-    - All work experience with dates, company names, and detailed responsibilities
-    - All projects with descriptions and technologies used
-    - All certifications, awards, publications, and extra activities
+    You are an expert resume parser specializing in extracting structured information from professional resumes. Parse the following resume text and organize it into clearly defined sections for optimal presentation in a professional 2-page format.
+
+    **PARSING REQUIREMENTS:**
+    1. Extract ALL available information with maximum detail
+    2. Preserve professional language and executive-level terminology
+    3. Maintain quantified achievements and specific metrics
+    4. Organize content for strategic 2-page layout distribution
+    5. Ensure comprehensive capture of technical skills and competencies
+
+    **EXTRACTION GUIDELINES:**
+    - Contact Details: Extract all professional contact information
+    - Professional Summary: Capture any executive summary or professional profile
+    - Core Competencies: Identify key skills and areas of expertise
+    - Experience: Extract all work history with detailed accomplishments
+    - Technical Skills: Categorize all technical proficiencies
+    - Education: Include all academic credentials and relevant details
+    - Certifications: Capture all professional certifications and awards
+    - Projects: Extract significant projects with outcomes and technologies
 
     Format your response EXACTLY as follows:
 
     === PERSONAL_INFO ===
-    [Full name on first line]
-    [Email address]
-    [Phone number]
-    [Address if provided]
-    [LinkedIn URL if provided]
-    [GitHub URL if provided]
-    [Portfolio/Website URL if provided]
-    [Any other contact information]
+    [Full Name]
+    [Email Address]
+    [Phone Number]
+    [Location/Address if provided]
+    [LinkedIn Profile URL if provided]
+    [GitHub/Portfolio URL if provided]
+    [Professional Website if provided]
+    [Any additional contact information]
+
+    === PROFESSIONAL_SUMMARY ===
+    [Executive summary or professional profile - capture the complete summary that positions the candidate as a senior professional]
+
+    === CORE_COMPETENCIES ===
+    [List of key competencies, skills, and areas of expertise - organize as bullet points or categories]
 
     === EDUCATION ===
-    [Degree] | [University/Institution] | [Graduation Date] | [GPA if provided]
-    [Any additional education entries]
-    [Relevant coursework if mentioned]
+    [Degree Type] | [Institution Name] | [Graduation Year/Date] | [GPA if mentioned] | [Honors/Distinctions]
+    [Additional degrees following same format]
+    [Relevant coursework or academic projects if significant]
 
     === TECHNICAL_SKILLS ===
-    Programming Languages: [list]
-    Frameworks/Libraries: [list]
-    Databases: [list]
-    Tools/Technologies: [list]
-    [Any other skill categories]
+    Programming Languages: [comprehensive list]
+    Frameworks & Libraries: [comprehensive list]
+    Databases & Data Technologies: [comprehensive list]
+    Cloud Platforms & DevOps: [comprehensive list]
+    Development Tools & IDEs: [comprehensive list]
+    Operating Systems: [list if mentioned]
+    Methodologies: [Agile, Scrum, etc. if mentioned]
+    [Any other technical categories]
 
-    === EXPERIENCE ===
-    [Job Title] | [Company Name] | [Start Date - End Date]
-    - [Responsibility/Achievement 1]
-    - [Responsibility/Achievement 2]
-    - [Continue for all responsibilities]
+    === PROFESSIONAL_EXPERIENCE ===
+    [Job Title] | [Company Name] | [Employment Period] | [Location if provided]
+    - [Detailed achievement/responsibility with quantified results]
+    - [Detailed achievement/responsibility with quantified results]
+    - [Continue for all significant accomplishments - maintain executive language]
 
-    [Next job entry following same format]
+    [Next position following same format]
 
     === PROJECTS ===
-    [Project Name] | [Technologies Used] | [Date if provided]
-    - [Project description]
-    - [Key features or achievements]
-    - [Technical details]
+    [Project Name] | [Technologies/Skills Used] | [Timeframe] | [Role/Context]
+    - [Project description with business impact]
+    - [Key technical achievements and outcomes]
+    - [Quantified results and metrics]
 
     [Next project following same format]
 
     === CERTIFICATIONS_AWARDS ===
-    [List all certifications, awards, publications, volunteer work, etc.]
+    [Professional certifications with issuing organization and date]
+    [Industry awards and recognitions]
+    [Publications, patents, or thought leadership]
+    [Volunteer work or community involvement if professionally relevant]
+    [Professional memberships and affiliations]
+
+    **IMPORTANT NOTES:**
+    - Preserve ALL quantified achievements (percentages, dollar amounts, timelines)
+    - Maintain executive-level language and professional terminology
+    - Extract complete bullet points without truncation
+    - Include all technical skills and competencies mentioned
+    - Capture industry-specific keywords and terminology
+    - Preserve action verbs and impact-focused language
 
     Resume text to parse:
     {resume_text}
@@ -237,12 +318,14 @@ def parse_resume_with_gemini(model: genai.GenerativeModel, resume_text: str) -> 
 
 
 def parse_gemini_output_to_dict(gemini_output: str) -> Dict[str, str]:
-    """Enhanced parsing of Gemini output with better section detection."""
+    """Enhanced parsing of Gemini output with better section detection for professional resume structure."""
     parsed_data = {
         'PERSONAL_INFO': '',
+        'PROFESSIONAL_SUMMARY': '',
+        'CORE_COMPETENCIES': '',
         'EDUCATION': '',
         'TECHNICAL_SKILLS': '',
-        'EXPERIENCE': '',
+        'PROFESSIONAL_EXPERIENCE': '',
         'PROJECTS': '',
         'CERTIFICATIONS_AWARDS': ''
     }
@@ -323,20 +406,29 @@ def clean_contact_info(contact_lines: list) -> list:
 
 
 def _process_structured_item_filtered(item_lines: list, story: list, styles):
-    """Helper function to process structured items like experience or projects, filtering placeholders."""
+    """Enhanced helper function to process structured items with professional formatting."""
     if not item_lines:
         return
     
-    # Process header
+    # Process header with enhanced formatting
     header = item_lines[0]
     
-    # Handle pipe-separated headers
+    # Handle pipe-separated headers for professional presentation
     if '|' in header:
         header_parts = [part.strip() for part in header.split('|')]
         valid_parts = [part for part in header_parts if not is_placeholder_text(part)]
         if valid_parts:
-            clean_header = ' | '.join(valid_parts)
-            story.append(Paragraph(f"<b>{clean_header}</b>", styles['SubHeading']))
+            # Format as: Title | Company | Date
+            if len(valid_parts) >= 2:
+                # Bold title, regular company and date
+                formatted_header = f"<b>{valid_parts[0]}</b>"
+                if len(valid_parts) > 1:
+                    formatted_header += f" | {valid_parts[1]}"
+                if len(valid_parts) > 2:
+                    formatted_header += f" | <i>{valid_parts[2]}</i>"
+                story.append(Paragraph(formatted_header, styles['SubHeading']))
+            else:
+                story.append(Paragraph(f"<b>{valid_parts[0]}</b>", styles['SubHeading']))
         else:
             return  # Skip if no valid parts
     else:
@@ -345,26 +437,32 @@ def _process_structured_item_filtered(item_lines: list, story: list, styles):
         else:
             return  # Skip if header is placeholder
     
-    # Process content lines
+    # Process content lines with enhanced bullet formatting
     for line in item_lines[1:]:
         line = line.strip()
         if line and not is_placeholder_text(line):
             if line.startswith('-') or line.startswith('•'):
-                story.append(Paragraph(f"• {line[1:].strip()}", styles['BulletPoint']))
+                # Remove existing bullet and add professional bullet
+                clean_line = line[1:].strip()
+                story.append(Paragraph(f"• {clean_line}", styles['BulletPoint']))
             else:
-                story.append(Paragraph(line, styles['Content']))
+                # Add bullet to non-bulleted content lines
+                story.append(Paragraph(f"• {line}", styles['BulletPoint']))
+    
+    # Add small spacer after each item for better separation
+    story.append(Spacer(1, 4))
 
 
 def create_pdf_from_data(parsed_data: Dict[str, str]) -> bytes:
-    """Enhanced PDF generation with better formatting and spacing, filtering out placeholder text."""
+    """Enhanced PDF generation with professional 2-page layout and premium formatting."""
     buffer = io.BytesIO()
     doc = SimpleDocTemplate(
         buffer, 
         pagesize=letter,
-        rightMargin=0.75*inch, 
-        leftMargin=0.75*inch,
-        topMargin=0.75*inch, 
-        bottomMargin=0.75*inch
+        rightMargin=0.65*inch, 
+        leftMargin=0.65*inch,
+        topMargin=0.6*inch, 
+        bottomMargin=0.6*inch
     )
 
     styles = get_resume_styles()
@@ -388,13 +486,43 @@ def create_pdf_from_data(parsed_data: Dict[str, str]) -> bytes:
                 contact_info = " | ".join(cleaned_contact)
                 story.append(Paragraph(contact_info, styles['ContactInfo']))
 
-    # Section configuration
+    # Professional Summary
+    prof_summary = parsed_data.get('PROFESSIONAL_SUMMARY', '').strip()
+    if prof_summary and not is_placeholder_text(prof_summary):
+        story.append(Paragraph('PROFESSIONAL SUMMARY', styles['SectionHeading']))
+        story.append(Spacer(1, 3))
+        
+        # Handle multi-line professional summary
+        summary_lines = prof_summary.split('\n')
+        for line in summary_lines:
+            line = line.strip()
+            if line and not is_placeholder_text(line):
+                story.append(Paragraph(line, styles['ProfessionalSummary']))
+        story.append(Spacer(1, 8))
+
+    # Core Competencies
+    competencies = parsed_data.get('CORE_COMPETENCIES', '').strip()
+    if competencies and not is_placeholder_text(competencies):
+        story.append(Paragraph('CORE COMPETENCIES', styles['SectionHeading']))
+        story.append(Spacer(1, 3))
+        
+        lines = competencies.split('\n')
+        for line in lines:
+            line = line.strip()
+            if line and not is_placeholder_text(line):
+                if line.startswith('-') or line.startswith('•'):
+                    story.append(Paragraph(f"• {line[1:].strip()}", styles['CompetencyItem']))
+                else:
+                    story.append(Paragraph(f"• {line}", styles['CompetencyItem']))
+        story.append(Spacer(1, 8))
+
+    # Section configuration for professional layout
     sections_config = [
+        ('PROFESSIONAL_EXPERIENCE', 'PROFESSIONAL EXPERIENCE'),
+        ('TECHNICAL_SKILLS', 'TECHNICAL EXPERTISE'),
         ('EDUCATION', 'EDUCATION'),
-        ('TECHNICAL_SKILLS', 'TECHNICAL SKILLS'),
-        ('EXPERIENCE', 'PROFESSIONAL EXPERIENCE'),
-        ('PROJECTS', 'PROJECTS'),
-        ('CERTIFICATIONS_AWARDS', 'CERTIFICATIONS & AWARDS')
+        ('PROJECTS', 'KEY PROJECTS'),
+        ('CERTIFICATIONS_AWARDS', 'CERTIFICATIONS & ACHIEVEMENTS')
     ]
 
     for section_key, section_title in sections_config:
@@ -402,11 +530,11 @@ def create_pdf_from_data(parsed_data: Dict[str, str]) -> bytes:
         if content and not is_placeholder_text(content):
             # Section header
             story.append(Paragraph(section_title, styles['SectionHeading']))
-            story.append(Spacer(1, 6))
+            story.append(Spacer(1, 3))
 
-            # Section content
+            # Section content with enhanced formatting
             if section_key == 'TECHNICAL_SKILLS':
-                # Handle technical skills with categories
+                # Handle technical skills with professional categorization
                 lines = content.split('\n')
                 valid_lines = []
                 
@@ -424,8 +552,8 @@ def create_pdf_from_data(parsed_data: Dict[str, str]) -> bytes:
                 for valid_line in valid_lines:
                     story.append(Paragraph(valid_line, styles['Content']))
 
-            elif section_key in ['EXPERIENCE', 'PROJECTS']:
-                # Handle structured sections with headers and bullet points
+            elif section_key in ['PROFESSIONAL_EXPERIENCE', 'PROJECTS']:
+                # Handle structured sections with enhanced professional formatting
                 lines = content.split('\n')
                 current_item = []
                 
@@ -448,8 +576,30 @@ def create_pdf_from_data(parsed_data: Dict[str, str]) -> bytes:
                 if current_item:
                     _process_structured_item_filtered(current_item, story, styles)
 
+            elif section_key == 'EDUCATION':
+                # Enhanced education formatting
+                lines = content.split('\n')
+                for line in lines:
+                    line = line.strip()
+                    if line and not is_placeholder_text(line):
+                        if '|' in line:
+                            # Format: Degree | Institution | Date | Additional Info
+                            parts = [part.strip() for part in line.split('|')]
+                            valid_parts = [part for part in parts if not is_placeholder_text(part)]
+                            if valid_parts:
+                                if len(valid_parts) >= 2:
+                                    # Format as: Degree, Institution (Date)
+                                    formatted_line = f"<b>{valid_parts[0]}</b>, {valid_parts[1]}"
+                                    if len(valid_parts) > 2:
+                                        formatted_line += f" ({valid_parts[2]})"
+                                    story.append(Paragraph(formatted_line, styles['Content']))
+                                else:
+                                    story.append(Paragraph(line, styles['Content']))
+                        else:
+                            story.append(Paragraph(line, styles['Content']))
+
             else:
-                # Handle other sections
+                # Handle other sections with professional formatting
                 lines = content.split('\n')
                 for line in lines:
                     line = line.strip()
@@ -459,7 +609,7 @@ def create_pdf_from_data(parsed_data: Dict[str, str]) -> bytes:
                         else:
                             story.append(Paragraph(line, styles['Content']))
 
-            story.append(Spacer(1, 12))
+            story.append(Spacer(1, 8))
 
     doc.build(story)
     buffer.seek(0)
