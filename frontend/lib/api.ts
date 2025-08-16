@@ -3,6 +3,7 @@ import {
   JobSearchResponse, 
   ResumeTailorRequest, 
   ResumeTailorResponse,
+  ResumePDFGenerateRequest,
   ResumeParseRequest,
   ResumeParseResponse,
   UploadResponse 
@@ -108,6 +109,25 @@ class ApiClient {
     const response = await fetch(url, {
       method: 'POST',
       body: formData,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+    }
+
+    return response.blob();
+  }
+
+  async generatePDFFromText(data: ResumePDFGenerateRequest): Promise<Blob> {
+    const url = `${API_BASE_URL}/api/v1/resume/generate-pdf-from-text`;
+    
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
     });
 
     if (!response.ok) {

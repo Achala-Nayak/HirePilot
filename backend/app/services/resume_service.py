@@ -659,6 +659,43 @@ async def generate_tailored_pdf(
         return None, f"Error in PDF generation pipeline: {str(e)}"
 
 
+async def generate_pdf_from_tailored_text(
+    tailored_resume_text: str,
+    job_title: str,
+    company_name: str
+) -> Tuple[Optional[bytes], str]:
+    """Generate PDF from already tailored resume text."""
+    try:
+        # Configure Gemini
+        model = configure_gemini()
+        if not model:
+            return None, "Failed to configure Gemini"
+        
+        # Parse tailored resume
+        gemini_parsed_text = parse_resume_with_gemini(model, tailored_resume_text)
+        if not gemini_parsed_text:
+            return None, "Failed to parse resume with Gemini"
+        
+        # Convert to structured data
+        parsed_data_dict = parse_gemini_output_to_dict(gemini_parsed_text)
+        
+        # Generate PDF
+        pdf_data = create_pdf_from_data(parsed_data_dict)
+        if not pdf_data:
+            return None, "Failed to generate PDF"
+        
+        # Generate filename
+        company_clean = company_name.replace(' ', '_').replace('/', '-')
+        job_title_clean = job_title.replace(' ', '_').replace('/', '-')
+        filename = f"Tailored_Resume_{company_clean}_{job_title_clean}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
+        
+        return pdf_data, filename
+        
+    except Exception as e:
+        logger.error(f"Error generating PDF from tailored text: {str(e)}")
+        return None, f"Error generating PDF from tailored text: {str(e)}"
+
+
 async def parse_resume_only(resume_text: str) -> Tuple[Optional[Dict[str, str]], str]:
     """Parse resume text into structured data without tailoring."""
     try:

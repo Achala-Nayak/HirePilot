@@ -68,6 +68,13 @@ class ResumeParseResponse(BaseModel):
     parsed_data: Optional[Dict[str, str]] = Field(None, description="Parsed resume data in sections")
 
 
+class ResumePDFGenerateRequest(BaseModel):
+    """Request model for generating PDF from tailored resume text"""
+    tailored_resume_text: str = Field(..., min_length=1, description="Tailored resume text content")
+    job_title: str = Field(..., min_length=1, max_length=200, description="Job title")
+    company_name: str = Field(..., min_length=1, max_length=200, description="Company name")
+
+
 class ErrorResponse(BaseModel):
     """Error response model"""
     success: bool = Field(False, description="Always false for errors")

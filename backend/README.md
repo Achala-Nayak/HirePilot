@@ -214,32 +214,3 @@ Example production command:
 ```bash
 gunicorn main:app -w 4 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:8003
 ```
-
-## Development
-
-### Running Tests
-
-```bash
-# Add your test commands here when tests are implemented
-```
-
-### Code Quality
-
-The project follows Python best practices:
-- Type hints
-- Pydantic for data validation
-- Structured logging
-- Proper error handling
-- Modular architecture
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
-
-## License
-
-[Add your license information here]

@@ -49,6 +49,12 @@ export interface ResumeTailorResponse extends ApiResponse {
   filename?: string;
 }
 
+export interface ResumePDFGenerateRequest {
+  tailored_resume_text: string;
+  job_title: string;
+  company_name: string;
+}
+
 export interface ResumeParseRequest {
   resume_text: string;
 }

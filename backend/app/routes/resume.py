@@ -10,10 +10,12 @@ from app.models.job_models import (
     ResumeTailorResponse,
     ResumeParseRequest,
     ResumeParseResponse,
+    ResumePDFGenerateRequest,
     ErrorResponse
 )
 from app.services.resume_service import (
     generate_tailored_pdf,
+    generate_pdf_from_tailored_text,
     parse_resume_only,
     tailor_resume_with_llm
 )
@@ -157,6 +159,58 @@ async def tailor_resume_pdf(request: ResumeTailorRequest):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to generate PDF: {str(e)}"
+        )
+
+
+@router.post(
+    "/generate-pdf-from-text",
+    status_code=status.HTTP_200_OK,
+    summary="Generate PDF from tailored resume text",
+    description="Generate a professional PDF from already tailored resume text",
+    response_class=Response
+)
+async def generate_pdf_from_text(request: ResumePDFGenerateRequest):
+    """
+    Generate a PDF from tailored resume text.
+    
+    - **tailored_resume_text**: Already tailored resume text content
+    - **job_title**: Job title for the position
+    - **company_name**: Company name for the position
+    
+    Returns a PDF file with the tailored resume.
+    """
+    try:
+        logger.info(f"PDF generation from text request for {request.job_title} at {request.company_name}")
+        
+        # Generate PDF from tailored text
+        pdf_data, result = await generate_pdf_from_tailored_text(
+            tailored_resume_text=request.tailored_resume_text,
+            job_title=request.job_title,
+            company_name=request.company_name
+        )
+        
+        if not pdf_data:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Failed to generate PDF: {result}"
+            )
+        
+        # Return PDF as response
+        headers = {
+            'Content-Disposition': f'attachment; filename="{result}"',
+            'Content-Type': 'application/pdf'
+        }
+        
+        logger.info(f"Successfully generated PDF from text for {request.job_title} at {request.company_name}")
+        return Response(content=pdf_data, media_type="application/pdf", headers=headers)
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error during PDF generation from text: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to generate PDF from text: {str(e)}"
         )
 
 

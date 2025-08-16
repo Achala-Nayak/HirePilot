@@ -21,6 +21,7 @@ import { toast } from "sonner";
 import { JobResult, JobSearchRequest } from "@/types/api";
 import { apiClient } from "@/lib/api";
 import { downloadBlob, truncateText, isValidUrl } from "@/lib/utils";
+import { ResumeEditor } from "@/components/ResumeEditor";
 
 interface JobResultsProps {
   jobs: JobResult[];
@@ -30,6 +31,15 @@ interface JobResultsProps {
 
 export function JobResults({ jobs, searchParams, resumeText }: JobResultsProps) {
   const [tailoringJobs, setTailoringJobs] = useState<Set<string>>(new Set());
+  const [editorState, setEditorState] = useState<{
+    isOpen: boolean;
+    job: JobResult | null;
+    tailoredResumeText: string;
+  }>({
+    isOpen: false,
+    job: null,
+    tailoredResumeText: "",
+  });
 
   const handleTailorResume = async (job: JobResult) => {
     if (!job.job_id || !job.description || !job.title || !job.company_name) {
@@ -40,20 +50,23 @@ export function JobResults({ jobs, searchParams, resumeText }: JobResultsProps) 
     setTailoringJobs(prev => new Set(prev).add(job.job_id!));
 
     try {
-      const response = await apiClient.tailorResumePDF({
+      const response = await apiClient.tailorResume({
         resume_text: resumeText,
         job_description: job.description,
         job_title: job.title,
         company_name: job.company_name,
       });
 
-      // Generate filename
-      const companyClean = job.company_name.replace(/[^a-zA-Z0-9]/g, '_');
-      const titleClean = job.title.replace(/[^a-zA-Z0-9]/g, '_');
-      const filename = `Tailored_Resume_${companyClean}_${titleClean}_${new Date().toISOString().split('T')[0]}.pdf`;
-
-      downloadBlob(response, filename);
-      toast.success("Resume tailored and downloaded successfully!");
+      if (response.success && response.tailored_resume_text) {
+        // Open the editor with the tailored resume text
+        setEditorState({
+          isOpen: true,
+          job: job,
+          tailoredResumeText: response.tailored_resume_text,
+        });
+      } else {
+        throw new Error(response.message || "Failed to tailor resume");
+      }
     } catch (error) {
       console.error("Error tailoring resume:", error);
       toast.error("Failed to tailor resume. Please try again.");
@@ -64,6 +77,14 @@ export function JobResults({ jobs, searchParams, resumeText }: JobResultsProps) 
         return newSet;
       });
     }
+  };
+
+  const handleCloseEditor = () => {
+    setEditorState({
+      isOpen: false,
+      job: null,
+      tailoredResumeText: "",
+    });
   };
 
   const isJobTailoring = (jobId: string) => tailoringJobs.has(jobId);
@@ -177,7 +198,7 @@ export function JobResults({ jobs, searchParams, resumeText }: JobResultsProps) 
                   ) : (
                     <>
                       <Sparkles className="h-4 w-4 mr-1" />
-                      Tailor Resume
+                      Edit & Tailor Resume
                     </>
                   )}
                 </Button>
@@ -201,21 +222,31 @@ export function JobResults({ jobs, searchParams, resumeText }: JobResultsProps) 
               <Sparkles className="h-4 w-4 text-primary-foreground" />
             </div>
             <div className="flex-1">
-              <h3 className="font-semibold text-foreground mb-1">AI-Powered Resume Tailoring</h3>
+              <h3 className="font-semibold text-foreground mb-1">AI-Powered Resume Editing</h3>
               <p className="text-sm text-muted-foreground mb-2">
-                Click "Tailor Resume" to generate a customized resume optimized for each specific job posting. 
+                Click "Edit & Tailor Resume" to generate a customized resume that you can review and edit before downloading.
                 Our AI analyzes the job description and enhances your resume with relevant keywords and achievements.
               </p>
               <ul className="text-xs text-muted-foreground space-y-1">
-                <li>• ATS-optimized formatting</li>
-                <li>• Keyword enhancement</li>
+                <li>• AI-tailored content generation</li>
+                <li>• Interactive editing interface</li>
+                <li>• Real-time word and character count</li>
                 <li>• Professional PDF generation</li>
-                <li>• Instant download</li>
               </ul>
             </div>
           </div>
         </CardContent>
       </Card>
+
+      {/* Resume Editor Modal */}
+      {editorState.job && (
+        <ResumeEditor
+          isOpen={editorState.isOpen}
+          onClose={handleCloseEditor}
+          job={editorState.job}
+          tailoredResumeText={editorState.tailoredResumeText}
+        />
+      )}
     </div>
   );
 }
