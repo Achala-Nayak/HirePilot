@@ -2,12 +2,15 @@ from fastapi import APIRouter, File, UploadFile, Form
 import shutil
 import os
 
-router = APIRouter()
+router = APIRouter(
+    prefix="/api/v1/upload",
+    tags=["upload"]
+)
 
 UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-@router.post("/upload")
+@router.post("/")
 async def upload_resume(
     job_title: str = Form(...),
     job_location: str = Form(...),
