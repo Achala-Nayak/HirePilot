@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import axios from "axios";
+import { api } from "@/services/api";
 
 export default function UploadPage() {
   const [jobTitle, setJobTitle] = useState("");
@@ -28,7 +28,7 @@ export default function UploadPage() {
 
     try {
 
-      await axios.post("http://localhost:8000/upload", formData, {
+      await api.post("/upload", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
@@ -38,7 +38,11 @@ export default function UploadPage() {
       searchForm.append("job_location", jobLocation);
       searchForm.append("num_jobs", numJobs);
 
-      const res = await axios.post("http://localhost:8000/search_jobs", searchForm);
+      const res = await api.post("/api/v1/jobs/search", {
+        job_title: jobTitle,
+        location: jobLocation,
+        job_count: parseInt(numJobs)
+      });
       setJobs(res.data.jobs);
 
     } catch (error) {
