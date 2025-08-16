@@ -16,7 +16,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:3000",
-        "https://hire-pilot-frontend.vercel.app",
+        "https://tryhirepilot.vercel.app",
         "https://*.vercel.app"
     ],  # Allow your deployed frontend
     allow_credentials=True,
