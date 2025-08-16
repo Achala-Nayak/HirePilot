@@ -11,8 +11,6 @@ import {
   MapPin, 
   Building, 
   ExternalLink, 
-  FileText, 
-  Download, 
   Loader2, 
   Sparkles,
   Eye
@@ -20,7 +18,7 @@ import {
 import { toast } from "sonner";
 import { JobResult, JobSearchRequest } from "@/types/api";
 import { apiClient } from "@/lib/api";
-import { downloadBlob, truncateText, isValidUrl } from "@/lib/utils";
+import { truncateText, isValidUrl } from "@/lib/utils";
 import { ResumeEditor } from "@/components/ResumeEditor";
 
 interface JobResultsProps {
@@ -224,7 +222,7 @@ export function JobResults({ jobs, searchParams, resumeText }: JobResultsProps) 
             <div className="flex-1">
               <h3 className="font-semibold text-foreground mb-1">AI-Powered Resume Editing</h3>
               <p className="text-sm text-muted-foreground mb-2">
-                Click "Edit & Tailor Resume" to generate a customized resume that you can review and edit before downloading.
+                Click &quot;Edit &amp; Tailor Resume&quot; to generate a customized resume that you can review and edit before downloading.
                 Our AI analyzes the job description and enhances your resume with relevant keywords and achievements.
               </p>
               <ul className="text-xs text-muted-foreground space-y-1">

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { api } from "@/services/api";
+import { JobResult } from "@/types/api";
 
 export default function UploadPage() {
   const [jobTitle, setJobTitle] = useState("");
@@ -9,7 +10,7 @@ export default function UploadPage() {
   const [yearsExperience, setYearsExperience] = useState("");
   const [numJobs, setNumJobs] = useState("");
   const [file, setFile] = useState<File | null>(null);
-  const [jobs, setJobs] = useState<any[]>([]);
+  const [jobs, setJobs] = useState<JobResult[]>([]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -102,9 +103,9 @@ export default function UploadPage() {
             {jobs.map((job, index) => (
               <li key={index} className="border p-3 rounded">
                 <h3 className="font-bold">{job.title}</h3>
-                <p>{job.company} — {job.location}</p>
+                <p>{job.company_name} — {job.location}</p>
                 <a
-                  href={job.link}
+                  href={job.job_url}
                   target="_blank"
                   className="text-blue-500 underline"
                 >

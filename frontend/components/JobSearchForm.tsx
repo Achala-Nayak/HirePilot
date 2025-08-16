@@ -12,10 +12,10 @@ import { Upload, FileText, X, Search, Loader2, CheckCircle2, Sparkles, Target, C
 import { toast } from "sonner";
 import { validatePDFFile } from "@/lib/utils";
 import { apiClient } from "@/lib/api";
-import { JobSearchRequest, ExperienceLevel } from "@/types/api";
+import { JobSearchRequest, ExperienceLevel, JobResult } from "@/types/api";
 
 interface JobSearchFormProps {
-  onJobsFound: (jobs: any[], searchParams: JobSearchRequest) => void;
+  onJobsFound: (jobs: JobResult[], searchParams: JobSearchRequest) => void;
   onResumeUploaded: (resumeText: string) => void;
 }
 

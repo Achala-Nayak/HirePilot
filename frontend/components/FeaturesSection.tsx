@@ -110,7 +110,7 @@ export function FeaturesSection() {
             </span>
           </h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-            Powered by advanced AI technology to give you the competitive edge in today's job market
+            Powered by advanced AI technology to give you the competitive edge in today&apos;s job market
           </p>
         </div>
 
