@@ -40,18 +40,24 @@ async def search_jobs(request: JobSearchRequest) -> JobSearchResponse:
     - **location**: Location to search in (required)  
     - **experience**: Experience level (optional)
     - **job_count**: Number of jobs to return (1-50, default: 10)
+    - **api_keys**: API keys including serpapi_key (required)
     
     Returns a list of job results with company information, descriptions, and application links.
     """
     try:
         logger.info(f"Job search request: {request.job_title} in {request.location}")
         
+        # Validate API key
+        if not request.api_keys or not request.api_keys.serpapi_key:
+            raise ValueError("SerpAPI key is required")
+        
         # Call the job service
         jobs = await find_jobs(
             job_title=request.job_title,
             location=request.location,
             experience=request.experience.value if request.experience else None,
-            job_count=request.job_count
+            job_count=request.job_count,
+            serpapi_key=request.api_keys.serpapi_key
         )
         
         response = JobSearchResponse(

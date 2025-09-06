@@ -13,12 +13,19 @@ class ExperienceLevel(str, Enum):
     EXECUTIVE = "executive"
 
 
+class ApiKeys(BaseModel):
+    """Model for API keys"""
+    serpapi_key: Optional[str] = Field(None, description="SerpAPI key for job searching")
+    gemini_api_key: Optional[str] = Field(None, description="Google Gemini API key for AI processing")
+
+
 class JobSearchRequest(BaseModel):
     """Request model for job search"""
     job_title: str = Field(..., min_length=1, max_length=100, description="Job title to search for")
     location: str = Field(..., min_length=1, max_length=100, description="Location to search in")
     experience: Optional[ExperienceLevel] = Field(None, description="Experience level requirement")
     job_count: int = Field(default=10, ge=1, le=50, description="Number of jobs to return (1-50)")
+    api_keys: ApiKeys = Field(..., description="API keys for external services")
 
 
 class JobResult(BaseModel):
@@ -46,6 +53,7 @@ class ResumeTailorRequest(BaseModel):
     job_description: str = Field(..., min_length=1, description="Job description to tailor resume for")
     job_title: str = Field(..., min_length=1, max_length=200, description="Job title")
     company_name: str = Field(..., min_length=1, max_length=200, description="Company name")
+    api_keys: ApiKeys = Field(..., description="API keys for external services")
 
 
 class ResumeTailorResponse(BaseModel):
@@ -59,6 +67,7 @@ class ResumeTailorResponse(BaseModel):
 class ResumeParseRequest(BaseModel):
     """Request model for resume parsing"""
     resume_text: str = Field(..., min_length=1, description="Resume text to parse")
+    api_keys: ApiKeys = Field(..., description="API keys for external services")
 
 
 class ResumeParseResponse(BaseModel):
@@ -73,6 +82,7 @@ class ResumePDFGenerateRequest(BaseModel):
     tailored_resume_text: str = Field(..., min_length=1, description="Tailored resume text content")
     job_title: str = Field(..., min_length=1, max_length=200, description="Job title")
     company_name: str = Field(..., min_length=1, max_length=200, description="Company name")
+    api_keys: ApiKeys = Field(..., description="API keys for external services")
 
 
 class ErrorResponse(BaseModel):

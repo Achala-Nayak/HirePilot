@@ -8,8 +8,6 @@ from app.models.job_models import JobResult
 
 logger = logging.getLogger(__name__)
 
-# Environment variables
-SERPAPI_KEY = os.getenv("SERPAPI_KEY")
 
 def is_valid_url(url: str) -> bool:
     """Check if a URL is valid and accessible"""
@@ -49,12 +47,12 @@ def extract_job_url(job_data: dict) -> Optional[str]:
     return None
 
 
-async def find_jobs(job_title: str, location: str, experience: Optional[str], job_count: int) -> List[JobResult]:
+async def find_jobs(job_title: str, location: str, experience: Optional[str], job_count: int, serpapi_key: str) -> List[JobResult]:
     """
     Asynchronously searches for jobs using the SerpApi Google Jobs API.
     """
-    if not SERPAPI_KEY:
-        raise ValueError("SERPAPI_KEY environment variable is not set")
+    if not serpapi_key:
+        raise ValueError("SERPAPI_KEY is required but not provided")
     
     serpapi_url = "https://serpapi.com/search.json"
     
@@ -68,7 +66,7 @@ async def find_jobs(job_title: str, location: str, experience: Optional[str], jo
     params = {
         "engine": "google_jobs",
         "q": search_query,
-        "api_key": SERPAPI_KEY,
+        "api_key": serpapi_key,
         "hl": "en",
     }
     

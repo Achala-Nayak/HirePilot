@@ -123,18 +123,27 @@ async def tailor_resume_pdf(request: ResumeTailorRequest):
     - **job_description**: Job description to tailor resume for
     - **job_title**: Job title for the position
     - **company_name**: Company name for the position
+    - **api_keys**: API keys including gemini_api_key (required)
     
     Returns a PDF file with the tailored resume.
     """
     try:
         logger.info(f"PDF generation request for {request.job_title} at {request.company_name}")
         
+        # Validate API key
+        if not request.api_keys or not request.api_keys.gemini_api_key:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Gemini API key is required"
+            )
+        
         # Generate tailored PDF
         pdf_data, result = await generate_tailored_pdf(
             resume_text=request.resume_text,
             job_description=request.job_description,
             job_title=request.job_title,
-            company_name=request.company_name
+            company_name=request.company_name,
+            gemini_api_key=request.api_keys.gemini_api_key
         )
         
         if not pdf_data:
@@ -176,17 +185,26 @@ async def generate_pdf_from_text(request: ResumePDFGenerateRequest):
     - **tailored_resume_text**: Already tailored resume text content
     - **job_title**: Job title for the position
     - **company_name**: Company name for the position
+    - **api_keys**: API keys including gemini_api_key (required)
     
     Returns a PDF file with the tailored resume.
     """
     try:
         logger.info(f"PDF generation from text request for {request.job_title} at {request.company_name}")
         
+        # Validate API key
+        if not request.api_keys or not request.api_keys.gemini_api_key:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Gemini API key is required"
+            )
+        
         # Generate PDF from tailored text
         pdf_data, result = await generate_pdf_from_tailored_text(
             tailored_resume_text=request.tailored_resume_text,
             job_title=request.job_title,
-            company_name=request.company_name
+            company_name=request.company_name,
+            gemini_api_key=request.api_keys.gemini_api_key
         )
         
         if not pdf_data:
@@ -225,7 +243,8 @@ async def upload_and_tailor_pdf(
     file: UploadFile = File(..., description="PDF resume file"),
     job_description: str = Form(..., description="Job description to tailor resume for"),
     job_title: str = Form(..., description="Job title for the position"),
-    company_name: str = Form(..., description="Company name for the position")
+    company_name: str = Form(..., description="Company name for the position"),
+    api_keys: str = Form(..., description="JSON string containing API keys")
 ):
     """
     Upload a PDF resume, extract text, tailor it for a specific job, and return a professional tailored PDF.
@@ -242,6 +261,25 @@ async def upload_and_tailor_pdf(
         
         logger.info(f"Upload and tailor request for {job_title} at {company_name}")
         
+        # Parse API keys from JSON string
+        try:
+            import json
+            from app.models.job_models import ApiKeys
+            api_keys_dict = json.loads(api_keys)
+            api_keys_obj = ApiKeys(**api_keys_dict)
+        except (json.JSONDecodeError, ValueError) as e:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid API keys format"
+            )
+        
+        # Validate API key
+        if not api_keys_obj.gemini_api_key:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Gemini API key is required"
+            )
+        
         # Read and extract text from uploaded PDF
         file_content = await file.read()
         resume_text = extract_text_from_pdf(file_content)
@@ -257,7 +295,8 @@ async def upload_and_tailor_pdf(
             resume_text=resume_text,
             job_description=job_description,
             job_title=job_title,
-            company_name=company_name
+            company_name=company_name,
+            gemini_api_key=api_keys_obj.gemini_api_key
         )
         
         if not pdf_data:
@@ -297,14 +336,25 @@ async def parse_resume(request: ResumeParseRequest) -> ResumeParseResponse:
     Parse resume text into structured data sections.
     
     - **resume_text**: Resume text to parse
+    - **api_keys**: API keys including gemini_api_key (required)
     
     Returns structured resume data organized by sections.
     """
     try:
         logger.info("Resume parsing request received")
         
+        # Validate API key
+        if not request.api_keys or not request.api_keys.gemini_api_key:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Gemini API key is required"
+            )
+        
         # Parse resume using AI
-        parsed_data, message = await parse_resume_only(request.resume_text)
+        parsed_data, message = await parse_resume_only(
+            request.resume_text, 
+            request.api_keys.gemini_api_key
+        )
         
         if not parsed_data:
             raise HTTPException(

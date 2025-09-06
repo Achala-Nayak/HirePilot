@@ -109,7 +109,13 @@ export function JobSearchForm({ onJobsFound, onResumeUploaded }: JobSearchFormPr
       }
     } catch (error) {
       console.error("Error searching jobs:", error);
-      toast.error("Failed to search for jobs. Please try again.");
+      const errorMessage = error instanceof Error ? error.message : "Failed to search for jobs. Please try again.";
+      
+      if (errorMessage.includes("API key")) {
+        toast.error("Please configure your API keys in the settings to search for jobs.");
+      } else {
+        toast.error(errorMessage);
+      }
     } finally {
       setIsSearching(false);
     }

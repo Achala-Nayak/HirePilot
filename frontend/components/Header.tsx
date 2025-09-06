@@ -34,6 +34,7 @@ export function Header() {
     { name: "Job Search", href: "/apply" },
     { name: "Features", href: "#features" },
     { name: "How it Works", href: "#how-it-works" },
+    { name: "API Config", href: "/config" },
   ];
 
   return (

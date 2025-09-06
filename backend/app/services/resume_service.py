@@ -18,16 +18,14 @@ load_dotenv()
 
 logger = logging.getLogger(__name__)
 
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
-if not GEMINI_API_KEY:
-    raise ValueError("GEMINI_API_KEY environment variable is not set")
-
-
-def configure_gemini() -> Optional[genai.GenerativeModel]:
+def configure_gemini(api_key: str) -> Optional[genai.GenerativeModel]:
     """Configure Gemini API and return the model."""
+    if not api_key:
+        raise ValueError("Gemini API key is required")
+    
     try:
-        genai.configure(api_key=GEMINI_API_KEY)
+        genai.configure(api_key=api_key)
         model = genai.GenerativeModel('gemini-2.5-flash')
         return model
     except Exception as e:
@@ -135,8 +133,11 @@ def get_resume_styles():
     return styles
 
 
-async def tailor_resume_with_llm(resume_text: str, job_description: str) -> Optional[str]:
+async def tailor_resume_with_llm(resume_text: str, job_description: str, gemini_api_key: str) -> Optional[str]:
     """Use the Google Gemini API to tailor a resume for professional 2-page format with optimal section division."""
+    if not gemini_api_key:
+        raise ValueError("Gemini API key is required")
+        
     prompt = f"""
     You are an expert ATS-optimized resume writer and senior career strategist specializing in creating high-impact, professional resumes. Your task is to craft an exceptional, executive-level resume that maximizes interview opportunities while maintaining a clean, professional 2-page format with strategically divided sections.
 
@@ -199,7 +200,7 @@ async def tailor_resume_with_llm(resume_text: str, job_description: str) -> Opti
     
     payload = {"contents": [{"parts": [{"text": prompt}]}]}
     headers = {'Content-Type': 'application/json'}
-    gemini_api_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key={GEMINI_API_KEY}"
+    gemini_api_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key={gemini_api_key}"
 
     async with httpx.AsyncClient(timeout=120.0) as client:
         try:
@@ -620,17 +621,18 @@ async def generate_tailored_pdf(
     resume_text: str, 
     job_description: str, 
     job_title: str, 
-    company_name: str
+    company_name: str,
+    gemini_api_key: str
 ) -> Tuple[Optional[bytes], str]:
     """Complete pipeline: Tailor resume -> Parse with Gemini -> Generate PDF."""
     try:
         # Step 1: Tailor resume
-        tailored_resume = await tailor_resume_with_llm(resume_text, job_description)
+        tailored_resume = await tailor_resume_with_llm(resume_text, job_description, gemini_api_key)
         if not tailored_resume:
             return None, "Failed to tailor resume"
         
         # Step 2: Configure Gemini
-        model = configure_gemini()
+        model = configure_gemini(gemini_api_key)
         if not model:
             return None, "Failed to configure Gemini"
         
@@ -662,12 +664,13 @@ async def generate_tailored_pdf(
 async def generate_pdf_from_tailored_text(
     tailored_resume_text: str,
     job_title: str,
-    company_name: str
+    company_name: str,
+    gemini_api_key: str
 ) -> Tuple[Optional[bytes], str]:
     """Generate PDF from already tailored resume text."""
     try:
         # Configure Gemini
-        model = configure_gemini()
+        model = configure_gemini(gemini_api_key)
         if not model:
             return None, "Failed to configure Gemini"
         
@@ -696,11 +699,11 @@ async def generate_pdf_from_tailored_text(
         return None, f"Error generating PDF from tailored text: {str(e)}"
 
 
-async def parse_resume_only(resume_text: str) -> Tuple[Optional[Dict[str, str]], str]:
+async def parse_resume_only(resume_text: str, gemini_api_key: str) -> Tuple[Optional[Dict[str, str]], str]:
     """Parse resume text into structured data without tailoring."""
     try:
         # Configure Gemini
-        model = configure_gemini()
+        model = configure_gemini(gemini_api_key)
         if not model:
             return None, "Failed to configure Gemini"
         
