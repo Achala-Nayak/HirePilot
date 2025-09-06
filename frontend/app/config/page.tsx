@@ -5,7 +5,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Eye, EyeOff, Save, Key, ExternalLink, CheckCircle, AlertCircle } from "lucide-react";
@@ -229,10 +228,10 @@ export default function ConfigPage() {
                 • Keys are included in requests only to the respective API services (SerpAPI and Google AI).
               </p>
               <p>
-                • You can clear your keys at any time using the "Clear Keys" button below.
+                • You can clear your keys at any time using the &ldquo;Clear Keys&rdquo; button below.
               </p>
               <p>
-                • Make sure to keep your API keys secure and don't share them with others.
+                • Make sure to keep your API keys secure and don&rsquo;t share them with others.
               </p>
             </div>
           </CardContent>
