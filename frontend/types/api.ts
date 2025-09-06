@@ -5,6 +5,12 @@ export interface ApiResponse<T = any> {
   error_code?: string;
 }
 
+// API Keys Types
+export interface ApiKeys {
+  serpapi_key?: string;
+  gemini_api_key?: string;
+}
+
 // Job Search Types
 export type ExperienceLevel = 
   | "entry level"
@@ -19,6 +25,7 @@ export interface JobSearchRequest {
   location: string;
   experience?: ExperienceLevel;
   job_count?: number;
+  api_keys?: ApiKeys;
 }
 
 export interface JobResult {
@@ -42,6 +49,7 @@ export interface ResumeTailorRequest {
   job_description: string;
   job_title: string;
   company_name: string;
+  api_keys: ApiKeys;
 }
 
 export interface ResumeTailorResponse extends ApiResponse {
@@ -53,10 +61,12 @@ export interface ResumePDFGenerateRequest {
   tailored_resume_text: string;
   job_title: string;
   company_name: string;
+  api_keys: ApiKeys;
 }
 
 export interface ResumeParseRequest {
   resume_text: string;
+  api_keys: ApiKeys;
 }
 
 export interface ResumeParseResponse extends ApiResponse {

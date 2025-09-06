@@ -20,6 +20,7 @@ import { JobResult, JobSearchRequest } from "@/types/api";
 import { apiClient } from "@/lib/api";
 import { truncateText, isValidUrl } from "@/lib/utils";
 import { ResumeEditor } from "@/components/ResumeEditor";
+import { getApiKeys } from "@/utils/apiKeys";
 
 interface JobResultsProps {
   jobs: JobResult[];
@@ -40,19 +41,23 @@ export function JobResults({ jobs, searchParams, resumeText }: JobResultsProps) 
   });
 
   const handleTailorResume = async (job: JobResult) => {
-    if (!job.job_id || !job.description || !job.title || !job.company_name) {
-      toast.error("Job information is incomplete");
-      return;
-    }
+    if (!job.job_id) return;
 
     setTailoringJobs(prev => new Set(prev).add(job.job_id!));
-
+    
     try {
+      const apiKeys = getApiKeys();
+      if (!apiKeys || !apiKeys.gemini_api_key) {
+        toast.error("Please configure your API keys to tailor resumes.");
+        return;
+      }
+
       const response = await apiClient.tailorResume({
         resume_text: resumeText,
-        job_description: job.description,
-        job_title: job.title,
-        company_name: job.company_name,
+        job_description: job.description || "",
+        job_title: job.title || "",
+        company_name: job.company_name || "",
+        api_keys: apiKeys,
       });
 
       if (response.success && response.tailored_resume_text) {

@@ -65,16 +65,25 @@ async def tailor_resume(request: ResumeTailorRequest) -> ResumeTailorResponse:
     - **job_description**: Job description to tailor resume for
     - **job_title**: Job title for the position
     - **company_name**: Company name for the position
+    - **api_keys**: API keys including gemini_api_key (required)
     
     Returns a tailored resume text optimized for the specific job posting.
     """
     try:
         logger.info(f"Resume tailoring request for {request.job_title} at {request.company_name}")
         
+        # Validate API key
+        if not request.api_keys or not request.api_keys.gemini_api_key:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Gemini API key is required"
+            )
+        
         # Tailor the resume using AI
         tailored_resume = await tailor_resume_with_llm(
             resume_text=request.resume_text,
-            job_description=request.job_description
+            job_description=request.job_description,
+            gemini_api_key=request.api_keys.gemini_api_key
         )
         
         if not tailored_resume:

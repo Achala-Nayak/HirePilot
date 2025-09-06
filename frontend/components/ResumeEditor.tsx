@@ -17,6 +17,7 @@ import {
 import { toast } from "sonner";
 import { JobResult } from "@/types/api";
 import { apiClient } from "@/lib/api";
+import { getApiKeys } from "@/utils/apiKeys";
 import { downloadBlob } from "@/lib/utils";
 
 interface ResumeEditorProps {
@@ -39,10 +40,17 @@ export function ResumeEditor({ isOpen, onClose, job, tailoredResumeText }: Resum
     setIsGeneratingPDF(true);
 
     try {
+      const apiKeys = getApiKeys();
+      if (!apiKeys || !apiKeys.gemini_api_key) {
+        toast.error("Please configure your API keys to generate PDFs.");
+        return;
+      }
+
       const response = await apiClient.generatePDFFromText({
         tailored_resume_text: editedResumeText,
-        job_title: job.title,
-        company_name: job.company_name,
+        job_title: job.title || "",
+        company_name: job.company_name || "",
+        api_keys: apiKeys,
       });
 
       // Generate filename

@@ -17,7 +17,8 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:3000",
         "https://tryhirepilot.vercel.app",
-        "https://*.vercel.app"
+        "https://*.vercel.app",
+        "https://hirepilot.onrender.com"
     ],  # Allow your deployed frontend
     allow_credentials=True,
     allow_methods=["*"],

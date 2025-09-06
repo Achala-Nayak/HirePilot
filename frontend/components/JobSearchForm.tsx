@@ -23,7 +23,7 @@ export function JobSearchForm({ onJobsFound, onResumeUploaded }: JobSearchFormPr
   const [formData, setFormData] = useState<JobSearchRequest>({
     job_title: "",
     location: "",
-    experience: undefined,
+    experience: undefined, // Keep as undefined 
     job_count: 10,
   });
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
@@ -340,9 +340,9 @@ export function JobSearchForm({ onJobsFound, onResumeUploaded }: JobSearchFormPr
               Experience Level
             </Label>
             <Select
-              value={formData.experience}
-              onValueChange={(value: ExperienceLevel) => 
-                setFormData({ ...formData, experience: value })
+              value={formData.experience || ""}
+              onValueChange={(value: string) => 
+                setFormData({ ...formData, experience: value as ExperienceLevel || undefined })
               }
             >
               <SelectTrigger className={`h-12 text-base border-2 transition-all duration-300 ${
